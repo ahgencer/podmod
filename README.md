@@ -1,0 +1,88 @@
+<h1 align="center">Podmod</h1>
+
+<p align="center">
+    <img alt="Commit Activity" src="https://img.shields.io/github/commit-activity/m/ahgencer/podmod?label=Commit%20Activity">
+    <img alt="GitHub Stars" src="https://img.shields.io/github/stars/ahgencer/podmod?label=GitHub%20Stars">
+    <img alt="Issues" src="https://img.shields.io/github/issues/ahgencer/podmod/open?label=Issues">
+    <img alt="License" src="https://img.shields.io/github/license/ahgencer/podmod?label=License">
+</p>
+
+- GitHub: https://github.com/ahgencer/podmod
+- Releases: https://github.com/ahgencer/podmod/tags
+- Issues: https://github.com/ahgencer/podmod/issues
+
+*podmod provides a containerized method for building kernel modules on Fedora, mainly targeting immutable operating
+systems such as Silverblue / Kinoite and CoreOS.*
+
+*podmod* builds kernel modules from source inside a [Podman](https://podman.io/) container and allows you to load it
+without modifying any part of the filesystem on the host. It provides a small POSIX frontend to source the build steps
+of a module as a Containerfile, and to load and unload the module. The process is:
+
+- You call `podmod build` with the name of the kernel module.
+- *podmod* searches `lib/modules/` for the module, sources the `manifest.sh` file, and builds the kernel module as part
+  of a new container image.
+- You can then load or unload the module with `podmod load` or `podmod unload`. *podmod* will
+  call [insmod(8)](https://manpages.org/insmod/8) or [rmmod(8)](https://manpages.org/rmmod/8) from **inside** the
+  container to load or unload the module on the host.
+
+Interested? [Here's how to get started.](#getting-started)
+
+## FAQ
+
+### Isn't this super hacky?
+
+Not really. Containers aren't virtual machines, where the guest operating system has its own kernel, gets assigned its
+own memory space to manage, and may be completely unaware that it's being virtualized. Instead, container engines such
+as Podman or [Docker](https://www.docker.com/) use [Linux namespaces](https://en.wikipedia.org/wiki/Linux_namespaces) to
+make a sort of [chroot(1)](https://manpages.org/chroot) with an isolated process and network space. Otherwise, its no
+different from running the same command directly on the host. The kernel module is built the same way, and the kernel is
+the same inside and outside the container.
+
+Building kernel modules this way is not a brand-new concept,
+either. [jdoss/atomic-wireguard](https://github.com/jdoss/atomic-wireguard) takes the same approach. There's even
+an [article](https://projectatomic.io/blog/2018/06/building-kernel-modules-with-podman/) on building kernel modules with
+Podman on the [Project Atomic](https://projectatomic.io/) website (which is now deprecated in favor of CoreOS). However,
+the usual restrictions for kernel modules still apply. Mainly, the module needs to be built for a **specific** kernel
+version, and must be rebuilt with every update.
+
+### Will this work on my favorite edition of Fedora?
+
+This has only been tested on Silverblue / Kinoite 36, but will theoretically also work on other editions including
+Workstation, Server, and CoreOS. Think of it as an alternative to [dkms(8)](https://manpages.org/dkms/8), for cases
+where the module in question is either not packages for Fedora yet, or when the root filesystem is not writable.
+
+## Getting started
+
+### Installation
+
+*podmod* depends on `podman` to be installed and available in the `$PATH`.
+
+Otherwise, you can run *podmod* directly after cloning this repository.
+
+### Usage
+
+To get help on using *podmod*, run:
+
+    # podmod --help
+
+You may also refer to the manpage [podmod(8)](docs/podmod.8).
+
+To build a kernel module, run:
+
+    $ podmod -m <MODULE> build
+
+Afterwards, you can load it with:
+
+    $ podmod -m <MODULE> load
+
+## License
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+License as published by the Free Software Foundation, either version 2 of the License, or (at your option) any later
+version.
+
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with this program. If not,
+see <https://www.gnu.org/licenses/>.
