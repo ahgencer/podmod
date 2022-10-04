@@ -1,0 +1,87 @@
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+
+## Stage 1: Build kernel module
+FROM registry.fedoraproject.org/fedora:latest AS builder
+
+ARG ARCH
+ARG KERNEL_VERSION
+ARG MODULE_SHA256
+ARG MODULE_VERSION
+ARG UPSTREAM
+
+WORKDIR /tmp
+
+# Install build dependencies
+RUN dnf install -y \
+      gc \
+      gcc \
+      glibc-devel \
+      glibc-headers \
+      koji
+
+# Download and install correct kernel packages from koji
+RUN mkdir /tmp/koji && \
+    cd /tmp/koji && \
+    koji download-build --arch=$ARCH kernel-$KERNEL_VERSION && \
+    dnf install -y \
+      ./kernel-core-$KERNEL_VERSION.rpm \
+      ./kernel-devel-$KERNEL_VERSION.rpm \
+      ./kernel-modules-$KERNEL_VERSION.rpm
+
+# Download and extract kernel module from upstream
+RUN curl -LS $UPSTREAM -o v4l2loopback-$MODULE_VERSION.tar.gz && \
+    echo "$MODULE_SHA256 v4l2loopback-$MODULE_VERSION.tar.gz" | sha256sum -c && \
+    tar xzf v4l2loopback-$MODULE_VERSION.tar.gz && \
+    rm v4l2loopback-$MODULE_VERSION.tar.gz
+
+# Build kernel module
+RUN cd v4l2loopback-$MODULE_VERSION && \
+    make -j$(nproc) && \
+    make install
+
+## Stage 2: Stage and prepare files for the final image
+FROM registry.fedoraproject.org/fedora:latest AS staging
+
+ARG KERNEL_VERSION
+ARG MODULE_VERSION
+
+# Install runtime dependencies
+RUN dnf install -y \
+      v4l-utils
+
+# Copy and install kernel packages from builder stage
+COPY --from=builder /tmp/koji/ /tmp/koji/
+
+RUN cd /tmp/koji && \
+    dnf install -y \
+      ./kernel-core-$KERNEL_VERSION.rpm \
+      ./kernel-modules-$KERNEL_VERSION.rpm && \
+    rm -rf /tmp/koji
+
+# Copy kernel module binary from builder stage
+COPY --from=builder \
+  /tmp/v4l2loopback-$MODULE_VERSION/v4l2loopback.ko \
+  /usr/lib/modules/$KERNEL_VERSION/extra/v4l2loopback.ko
+
+# Minimize final image size
+RUN dnf clean all -y
+
+## Stage 3: Squash generated image layers
+FROM scratch
+COPY --from=staging / /
+
+# Set default command for container image
+CMD /usr/bin/v4l2-ctl
