@@ -76,7 +76,7 @@ usage() {
 $(version): Containerized build system for kernel modules on Fedora.
 
 Builds a kernel module from source inside a Podman container.
-Targeted for Fedora Silverblue / Kinoite, but should also work for other editions.
+Targeted for Fedora Silverblue / Kinoite, but also works for other editions.
 
 Note: This program must be executed with root privileges.
 
@@ -102,7 +102,7 @@ EOF
 # version()
 # Prints the current program version to stdout.
 version() {
-  echo "$(me) v0.2.0"
+  echo "$(me) v0.2.1"
 }
 
 ###################

@@ -1,5 +1,5 @@
 Name:           podmod
-Version:        0.2.0
+Version:        0.2.1
 Release:        1%{?dist}
 Summary:        Containerized build system for kernel modules on Fedora
 
@@ -13,8 +13,7 @@ Requires:       podman
 
 %description
 Builds a kernel module from source inside a Podman container.
-Targeted for Fedora Silverblue / Kinoite, but should also work for other
-editions.
+Targeted for Fedora Silverblue / Kinoite, but also works for other editions.
 
 %prep
 %autosetup
@@ -41,5 +40,8 @@ install -p -m0644 docs/*.5 %{buildroot}%{_mandir}/man5/
 %{_mandir}
 
 %changelog
+* Wed Oct 05 2022 Alpin H. Gencer <ah@gencer.us> - 0.2.1-1
+- Update project description
+
 * Wed Oct 05 2022 Alpin H. Gencer <ah@gencer.us> - 0.2.0-1
 - Initial version
