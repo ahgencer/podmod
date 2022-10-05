@@ -16,11 +16,16 @@
 
 set -e
 
+readonly ROOTDIR=$(cd -P -- "$(dirname -- "$(command -v -- "$0")")/../" && pwd -P)
+
 ###################
 # Defaults
 ###################
 
+readonly D_CONFIG_PATH="/etc/podmod.conf"
 readonly D_KERNEL_VERSION=$(uname -r)
+
+readonly D_MODULES_DIR="$ROOTDIR/lib/modules"
 
 ###################
 # Functions
@@ -85,6 +90,7 @@ Commands:
 
 Options:
 
+    -c, --config FILE             Use FILE as configuration. Default: ${D_CONFIG_PATH}
     -h, --help                    Show help and quit.
     -k, --kernel-version VERSION  Target the kernel version VERSION. Defaults to the current running kernel.
     -m, --module MODULE           Work on the module MODULE. Required.
@@ -96,7 +102,7 @@ EOF
 # version()
 # Prints the current program version to stdout.
 version() {
-  echo "$(me) v0.1.0"
+  echo "$(me) v0.2.0"
 }
 
 ###################
@@ -117,7 +123,7 @@ cmd_build() {
     --build-arg MODULE_SHA256="$module_sha256" \
     --build-arg MODULE_VERSION="$module_version" \
     --build-arg UPSTREAM="$upstream" \
-    "$moddir"
+    "$MODULES_DIR/$module"
 }
 
 # cmd_load()
@@ -158,6 +164,7 @@ cmd_unload() {
 # Convert long arguments into short forms
 for arg in "$@"; do
   case "$arg" in
+  --config) set -- "$@" "-c" ;;
   --help) set -- "$@" "-h" ;;
   --kernel-version) set -- "$@" "-k" ;;
   --module) set -- "$@" "-m" ;;
@@ -169,8 +176,9 @@ for arg in "$@"; do
 done
 
 # Process short arguments
-while getopts ":hk:m:V" opt; do
+while getopts ":c:hk:m:V" opt; do
   case $opt in
+  c) configpath="$OPTARG" ;;
   h)
     usage
     exit 0
@@ -191,6 +199,7 @@ done
 shift $((OPTIND - 1))
 
 # Fallback to defaults for unset arguments
+if [ -z ${configpath+x} ]; then configpath=$D_CONFIG_PATH; fi
 if [ -z ${kernel_version+x} ]; then kernel_version=$D_KERNEL_VERSION; fi
 if [ -z ${module+x} ]; then die 1 "Missing required option -m"; fi
 
@@ -211,26 +220,33 @@ if [ $# -ne 1 ]; then
 fi
 
 command=$1
+shift
 
-rootdir=$(cd -P -- "$(dirname -- "$(command -v -- "$0")")/.." && pwd -P)
-moddir="$rootdir/lib/modules/$module"
-manifestpath="$moddir/manifest.sh"
+# Parse configuration file
+if [ -f "$configpath" ]; then
+  # TODO: Don't source configuration file as shell script
+  . "$configpath"
+fi
+
+# Fallback to defaults for unset configuration
+if [ -z ${MODULES_DIR+x} ]; then MODULES_DIR=$D_MODULES_DIR; fi
 
 # Ensure module is supported
-if [ ! -d "$moddir" ]; then
+if [ ! -d "$MODULES_DIR" ]; then
   die 1 "Module is not supported"
 fi
 
-# Ensure manifest file is found
-if [ ! -f "$manifestpath" ]; then
+# Source module manifest
+MANIFEST_PATH="$MODULES_DIR/$module/manifest.sh"
+
+if [ ! -f "$MANIFEST_PATH" ]; then
   die 200 "Manifest file not found"
 fi
 
-# Source module manifest
-. "$manifestpath"
+. "$MANIFEST_PATH"
 
-image="$(me)"
-tag="$module-$module_version-$kernel_version"
+image="$(me)-$module"
+tag="$module_version-$kernel_version"
 
 # Jump to command definition
 case $command in
