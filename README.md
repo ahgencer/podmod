@@ -55,9 +55,25 @@ where the module in question is either not packages for Fedora yet, or when the 
 
 ### Installation
 
-*podmod* depends on `podman` to be installed and available in the `$PATH`.
+*podmod* is available as a [COPR](https://docs.fedoraproject.org/en-US/infra/sysadmin_guide/copr/) repository
+at [ahgencer/podmod](https://copr.fedorainfracloud.org/coprs/ahgencer/podmod/).
 
-Otherwise, you can run *podmod* directly after cloning this repository.
+On `dnf` based editions (Workstation, Server, etc.), you can install it the usual way with:
+
+    $ dnf copr enable ahgencer/podmod
+    $ dnf install podmod
+
+On `rpm-ostree` based editions (Silverblue / Kinoite, CoreOS, etc.), you first need to add the `.repo` file
+to `/etc/yum.repos.d/`:
+
+    $ VERSION_ID=<VERSION>
+    $ wget -P /etc/yum.repos.d/ "https://copr.fedorainfracloud.org/coprs/ahgencer/podmod/repo/fedora-$VERSION_ID/ahgencer-podmod-fedora-$VERSION_ID.repo"
+    $ rpm-ostree install --apply-live podmod
+
+Where `VERSION` is your Fedora version, as defined in `/etc/os-release`.
+
+Alternatively, you can run *podmod* after cloning this repository directly. Just make sure `podman` is installed and
+available in the `$PATH`.
 
 ### Usage
 
