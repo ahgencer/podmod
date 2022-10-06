@@ -33,7 +33,7 @@ Interested? [Here's how to get started.](#getting-started)
 
 Not really. Containers aren't virtual machines, where the guest operating system has its own kernel, gets assigned its
 own memory space to manage, and may be completely unaware that it's being virtualized. Instead, container engines such
-as Podman or [Docker](https://www.docker.com/) use [Linux namespaces](https://en.wikipedia.org/wiki/Linux_namespaces) to
+as Podman or [Docker](https://docker.com/) use [Linux namespaces](https://en.wikipedia.org/wiki/Linux_namespaces) to
 make a sort of [chroot(1)](https://manpages.org/chroot) with an isolated process and network space. Otherwise, its no
 different from running the same command directly on the host. The kernel module is built the same way, and the kernel is
 the same inside and outside the container.
@@ -50,6 +50,14 @@ version, and must be rebuilt with every update.
 This has only been tested on Silverblue / Kinoite 36, but will theoretically also work on other editions including
 Workstation, Server, and CoreOS. Think of it as an alternative to [dkms(8)](https://manpages.org/dkms/8), for cases
 where the module in question is either not packages for Fedora yet, or when the root filesystem is not writable.
+
+### Wil this work on distributions other than Fedora?
+
+No. The modules are built against Fedora's kernel packages from [Koji](https://koji.fedoraproject.org/koji/) and are
+incompatible with others. This restriction also includes distributions that are downstream from Fedora, such
+as [CentOS](https://centos.org/) and [RHEL](https://redhat.com/en/technologies/linux-platforms/enterprise-linux).
+
+You are welcome to adapt *podmod* to use different Containerfiles targeting other distributions, though!
 
 ## Getting started
 
