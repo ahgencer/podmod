@@ -1,5 +1,5 @@
 Name:           podmod
-Version:        0.2.1
+Version:        0.2.2
 Release:        1%{?dist}
 Summary:        Containerized build system for kernel modules on Fedora
 
@@ -40,6 +40,9 @@ install -p -m0644 docs/*.5 %{buildroot}%{_mandir}/man5/
 %{_mandir}
 
 %changelog
+* Thu Oct 06 2022 Alpin H. Gencer <ah@gencer.us> 0.2.2-1
+- Initialize tito
+
 * Wed Oct 05 2022 Alpin H. Gencer <ah@gencer.us> - 0.2.1-1
 - Update project description
 
