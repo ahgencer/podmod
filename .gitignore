@@ -3,3 +3,7 @@
 .vscode/
 .DS_Store
 Thumbs.db
+
+# Rust
+Cargo.lock
+target/

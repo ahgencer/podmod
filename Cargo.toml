@@ -1,0 +1,8 @@
+[package]
+name = "podmod"
+version = "0.3.0"
+edition = "2021"
+description = "Containerized build system for kernel modules on Fedora."
+license = "GPL-2.0-or-later"
+
+[dependencies]

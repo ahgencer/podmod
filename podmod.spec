@@ -1,5 +1,5 @@
 Name:           podmod
-Version:        0.2.2
+Version:        0.3.0
 Release:        1%{?dist}
 Summary:        Containerized build system for kernel modules on Fedora
 
@@ -7,7 +7,10 @@ License:        GPLv2+
 URL:            https://github.com/ahgencer/podmod
 Source0:        %{name}-%{version}.tar.gz
 
-BuildArch:      noarch
+ExclusiveArch:  %{rust_arches}
+
+BuildRequires:  cargo
+BuildRequires:  rust-packaging
 
 Requires:       podman
 
@@ -15,22 +18,29 @@ Requires:       podman
 Builds a kernel module from source inside a Podman container.
 Targeted for Fedora Silverblue / Kinoite, but also works for other editions.
 
+%global debug_package %{nil}
+
 %prep
 %autosetup
-# Set configuration defaults
-sed -i -E 's|^(readonly D_MODULES_DIR)=.+$|\1="%{_datadir}/%{name}/modules"|gm' src/%{name}
+%cargo_prep
+%generate_buildrequires
+%cargo_generate_buildrequires
 
 %build
-# podmod is a shell script
+%cargo_build -a
 
 %install
-mkdir -p %{buildroot}%{_sbindir} %{buildroot}%{_datadir}/%{name}/ %{buildroot}%{_sysconfdir}
+%cargo_install -a
+mv %{buildroot}%{_bindir} %{buildroot}%{_sbindir}
+mkdir -p %{buildroot}%{_datadir}/%{name}/ %{buildroot}%{_sysconfdir}
 mkdir -p %{buildroot}%{_mandir}/man8/ %{buildroot}%{_mandir}/man5/
-install -p -m0755 src/%{name} %{buildroot}%{_sbindir}
-cp -rp lib/modules/ %{buildroot}%{_datadir}/%{name}/
+cp -pr lib/modules/ %{buildroot}%{_datadir}/%{name}/
 install -p -m0755 extra/%{name}.conf %{buildroot}%{_sysconfdir}
 install -p -m0644 docs/*.8 %{buildroot}%{_mandir}/man8/
 install -p -m0644 docs/*.5 %{buildroot}%{_mandir}/man5/
+
+%check
+%cargo_test -a
 
 %files
 %license COPYING
@@ -40,6 +50,9 @@ install -p -m0644 docs/*.5 %{buildroot}%{_mandir}/man5/
 %{_mandir}
 
 %changelog
+* Fri Oct 07 2022 Alpin H. Gencer <ah@gencer.us> 0.3.0-1
+- Rewrite frontend script in Rust
+
 * Thu Oct 06 2022 Alpin H. Gencer <ah@gencer.us> 0.2.2-1
 - Initialize tito
 
