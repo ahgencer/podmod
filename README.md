@@ -86,14 +86,16 @@ Where `VERSION` is your Fedora version, as defined in `/etc/os-release` (eg. `36
 yourself, install `tito` (perhaps inside a [Toolbx](https://docs.fedoraproject.org/en-US/fedora-silverblue/toolbox/)
 container) and run:
 
-    # tito build --rpm
+    # tito build -o dist/ --rpm
+
+The locally built RPM and SRPM packages will be inside the `dist/` directory.
 
 You can then install the package with one of:
 
     $ dnf install <PATH>
     $ rpm-ostree install <PATH>
 
-Where `PATH` is the path to the locally generated RPM file.
+Where `PATH` is the path to the generated RPM file.
 
 ### Usage
 
