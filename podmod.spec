@@ -34,7 +34,7 @@ Targeted for Fedora Silverblue / Kinoite, but also works for other editions.
 mv %{buildroot}%{_bindir} %{buildroot}%{_sbindir}
 mkdir -p %{buildroot}%{_datadir}/%{name}/ %{buildroot}%{_sysconfdir}
 mkdir -p %{buildroot}%{_mandir}/man8/ %{buildroot}%{_mandir}/man5/
-cp -pr lib/modules/ %{buildroot}%{_datadir}/%{name}/
+cp -pr share/modules/ %{buildroot}%{_datadir}/%{name}/
 install -p -m0755 extra/%{name}.conf %{buildroot}%{_sysconfdir}
 install -p -m0644 docs/*.8 %{buildroot}%{_mandir}/man8/
 install -p -m0644 docs/*.5 %{buildroot}%{_mandir}/man5/

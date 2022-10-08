@@ -19,8 +19,8 @@ without modifying any part of the filesystem on the host. It provides a small PO
 of a module as a Containerfile, and to load and unload the module. The process is:
 
 - You call `podmod build` with the name of the kernel module.
-- *podmod* searches `lib/modules/` for the module, sources the `manifest.sh` file, and builds the kernel module as part
-  of a new container image.
+- *podmod* searches `share/modules/` for the module, sources the `manifest.sh` file, and builds the kernel module as
+  part of a new container image.
 - You can then load or unload the module with `podmod load` or `podmod unload`. *podmod* will
   call [insmod(8)](https://manpages.org/insmod/8) or [rmmod(8)](https://manpages.org/rmmod/8) from **inside** the
   container to load or unload the module on the host.
