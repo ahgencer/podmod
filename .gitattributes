@@ -3,5 +3,4 @@
 .gitignore  export-ignore
 
 # Project
-.tito/  export-ignore
 .editorconfig  export-ignore
