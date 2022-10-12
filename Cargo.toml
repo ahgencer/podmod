@@ -5,7 +5,7 @@
 name = "podmod"
 description = "Containerized build system for kernel modules on Fedora."
 keywords = ["linux", "kernel-module", "fedora", "podman", "silverblue"]
-categories = ["command-line-utilities", "os::linux-apis"]
+categories = ["command-line-utilities"]
 license = "GPL-2.0-or-later"
 authors = ["Alpin H. Gencer <ah@gencer.us>"]
 

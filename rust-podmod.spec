@@ -1,13 +1,16 @@
 %bcond_without check
+%global __cargo_skip_build 0
 
-Name:           podmod
+%global crate podmod
+
+Name:           rust-%{crate}
 Version:        0.3.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Containerized build system for kernel modules on Fedora
-
 License:        GPL-2.0-or-later
-URL:            https://github.com/ahgencer/podmod
-Source0:        %{name}-%{version}.tar.gz
+
+URL:            https://crates.io/crates/%{crate}
+Source0:        %{crates_source}
 
 ExclusiveArch:  %{rust_arches}
 
@@ -15,18 +18,26 @@ BuildRequires:  rust-packaging
 
 Requires:       podman
 
-%description
+%global _description %{expand:
 Builds a kernel module from source inside a Podman container.
-Targeted for Fedora Silverblue / Kinoite, but also works for other editions.
+Targeted for Fedora Silverblue / Kinoite, but also works for other editions.}
+
+%description %{_description}
+
+%package     -n %{crate}
+Summary:        %{summary}
+License:        GPL-2.0-or-later
+
+%description -n %{crate} %{_description}
 
 %global debug_package %{nil}
 
 %prep
-%autosetup
+%autosetup -n %{crate}-%{version_no_tilde} -p1
 %cargo_prep
 
 %generate_buildrequires
-%cargo_generate_buildrequires
+%cargo_generate_buildrequires -a
 
 %build
 %cargo_build -a
@@ -34,10 +45,10 @@ Targeted for Fedora Silverblue / Kinoite, but also works for other editions.
 %install
 %cargo_install -a
 mv %{buildroot}%{_bindir} %{buildroot}%{_sbindir}
-mkdir -p %{buildroot}%{_datadir}/%{name}/ %{buildroot}%{_sysconfdir}
+mkdir -p %{buildroot}%{_datadir}/%{crate}/ %{buildroot}%{_sysconfdir}
 mkdir -p %{buildroot}%{_mandir}/man8/ %{buildroot}%{_mandir}/man5/
-cp -pr share/modules/ %{buildroot}%{_datadir}/%{name}/
-install -p -m0755 extra/%{name}.conf %{buildroot}%{_sysconfdir}
+cp -pr share/modules/ %{buildroot}%{_datadir}/%{crate}/
+install -p -m0755 extra/%{crate}.conf %{buildroot}%{_sysconfdir}
 install -p -m0644 docs/*.8 %{buildroot}%{_mandir}/man8/
 install -p -m0644 docs/*.5 %{buildroot}%{_mandir}/man5/
 
@@ -48,12 +59,17 @@ install -p -m0644 docs/*.5 %{buildroot}%{_mandir}/man5/
 
 %files
 %license COPYING
-%{_sbindir}/%{name}
-%{_datadir}/%{name}/
-%{_sysconfdir}/%{name}.conf
+%{_sbindir}/%{crate}
+%{_datadir}/%{crate}/
+%{_sysconfdir}/%{crate}.conf
 %{_mandir}
 
 %changelog
+* Wed Oct 12 2022 Alpin H. Gencer <ah@gencer.us> 0.3.0-3
+- Publish crate to crates.io
+- Re-package RPM according to Fedora Rust Packaging Guidelines
+- Re-create package podmod as subpackage of rust-podmod
+
 * Wed Oct 12 2022 Alpin H. Gencer <ah@gencer.us> 0.3.0-2
 - Fill in missing check condition from spec file generated with rust2rpm
 - Use SPDX license identifier

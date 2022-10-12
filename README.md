@@ -1,14 +1,14 @@
 <h1 align="center">Podmod</h1>
 
 <p align="center">
-    <img alt="Commit Activity" src="https://img.shields.io/github/commit-activity/m/ahgencer/podmod?label=Commit%20Activity">
+    <img alt="crates.io Downloads" src="https://img.shields.io/crates/d/podmod?label=crates.io%20Downloads">
     <img alt="GitHub Stars" src="https://img.shields.io/github/stars/ahgencer/podmod?label=GitHub%20Stars">
     <img alt="Issues" src="https://img.shields.io/github/issues/ahgencer/podmod/open?label=Issues">
     <img alt="License" src="https://img.shields.io/github/license/ahgencer/podmod?label=License">
 </p>
 
 - GitHub: https://github.com/ahgencer/podmod
-- Releases: https://github.com/ahgencer/podmod/tags
+- crates.io: https://crates.io/crates/podmod
 - Issues: https://github.com/ahgencer/podmod/issues
 
 *podmod provides a containerized method for building kernel modules on Fedora, mainly targeting immutable operating
