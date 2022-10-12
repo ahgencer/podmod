@@ -3,9 +3,22 @@
 
 [package]
 name = "podmod"
+description = "Containerized build system for kernel modules on Fedora."
+keywords = ["linux", "kernel-module", "fedora", "podman", "silverblue"]
+categories = ["command-line-utilities", "os::linux-apis"]
+license = "GPL-2.0-or-later"
+authors = ["Alpin H. Gencer <ah@gencer.us>"]
+
 version = "0.3.0"
 edition = "2021"
-description = "Containerized build system for kernel modules on Fedora."
-license = "GPL-2.0-or-later"
+
+repository = "https://github.com/ahgencer/podmod"
+readme = "README.md"
+
+exclude = [
+    ".editorconfig",
+    ".gitattributes",
+    ".gitignore",
+]
 
 [dependencies]
