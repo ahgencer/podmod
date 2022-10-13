@@ -1,11 +1,11 @@
 %bcond_without check
-%global __cargo_skip_build 0
+%global debug_package %{nil}
 
 %global crate podmod
 
 Name:           rust-%{crate}
 Version:        0.3.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Containerized build system for kernel modules on Fedora
 License:        GPL-2.0-or-later
 
@@ -15,7 +15,6 @@ Source0:        %{crates_source}
 ExclusiveArch:  %{rust_arches}
 
 BuildRequires:  rust-packaging
-
 Requires:       podman
 
 %global _description %{expand:
@@ -26,11 +25,16 @@ Targeted for Fedora Silverblue / Kinoite, but also works for other editions.}
 
 %package     -n %{crate}
 Summary:        %{summary}
-License:        GPL-2.0-or-later
 
 %description -n %{crate} %{_description}
 
-%global debug_package %{nil}
+%files       -n %{crate}
+%license COPYING
+%doc README.md
+%{_sbindir}/podmod
+%{_datadir}/podmod/
+%{_sysconfdir}/podmod.conf
+%{_mandir}
 
 %prep
 %autosetup -n %{crate}-%{version_no_tilde} -p1
@@ -45,10 +49,10 @@ License:        GPL-2.0-or-later
 %install
 %cargo_install -a
 mv %{buildroot}%{_bindir} %{buildroot}%{_sbindir}
-mkdir -p %{buildroot}%{_datadir}/%{crate}/ %{buildroot}%{_sysconfdir}
+mkdir -p %{buildroot}%{_datadir}/podmod/ %{buildroot}%{_sysconfdir}
 mkdir -p %{buildroot}%{_mandir}/man8/ %{buildroot}%{_mandir}/man5/
-cp -pr share/modules/ %{buildroot}%{_datadir}/%{crate}/
-install -p -m0755 extra/%{crate}.conf %{buildroot}%{_sysconfdir}
+cp -pr share/modules/ %{buildroot}%{_datadir}/podmod/
+install -p -m0755 extra/podmod.conf %{buildroot}%{_sysconfdir}
 install -p -m0644 docs/*.8 %{buildroot}%{_mandir}/man8/
 install -p -m0644 docs/*.5 %{buildroot}%{_mandir}/man5/
 
@@ -57,14 +61,10 @@ install -p -m0644 docs/*.5 %{buildroot}%{_mandir}/man5/
 %cargo_test -a
 %endif
 
-%files
-%license COPYING
-%{_sbindir}/%{crate}
-%{_datadir}/%{crate}/
-%{_sysconfdir}/%{crate}.conf
-%{_mandir}
-
 %changelog
+* Thu Oct 13 2022 Alpin H. Gencer <ah@gencer.us> 0.3.0-4
+- Bundle README as documentation in package
+
 * Wed Oct 12 2022 Alpin H. Gencer <ah@gencer.us> 0.3.0-3
 - Publish crate to crates.io
 - Re-package RPM according to Fedora Rust Packaging Guidelines
