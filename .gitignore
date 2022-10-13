@@ -7,3 +7,6 @@ Thumbs.db
 # Rust
 Cargo.lock
 target/
+
+# Project
+dist/

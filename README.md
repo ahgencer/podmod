@@ -80,8 +80,22 @@ to `/etc/yum.repos.d/`:
 
 Where `VERSION` is your Fedora version, as defined in `/etc/os-release` (eg. `36` or `rawhide`).
 
-Alternatively, you can run *podmod* after cloning this repository directly. Just make sure `podman` is installed and
-available in the `$PATH`.
+### Building from source
+
+*podmod* is built as an RPM package using [Tito](https://github.com/rpm-software-management/tito). To build the package
+yourself, install `tito` (perhaps inside a [Toolbx](https://docs.fedoraproject.org/en-US/fedora-silverblue/toolbox/)
+container) and run:
+
+    # tito build -o dist/ --rpm
+
+The locally built RPM and SRPM packages will be inside the `dist/` directory.
+
+You can then install the package with one of:
+
+    $ dnf install <PATH>
+    $ rpm-ostree install <PATH>
+
+Where `PATH` is the path to the generated RPM file.
 
 ### Usage
 
