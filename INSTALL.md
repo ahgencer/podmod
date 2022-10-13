@@ -24,6 +24,7 @@ from source, first install `tito` and other build dependencies (perhaps inside
 a [Toolbx](https://docs.fedoraproject.org/en-US/fedora-silverblue/toolbox/) container):
 
     $ dnf install tito rust-packaging
+    $ dnf install rust-clap+default-devel rust-clap+derive-devel
 
 Then build the latest stable version of the package with:
 
