@@ -13,8 +13,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use podmod::run;
-
-fn main() {
-    run();
+pub fn run() {
+    println!("Hello, world!");
 }

@@ -5,7 +5,7 @@
 
 Name:           rust-%{crate}
 Version:        0.3.0
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Containerized build system for kernel modules on Fedora
 License:        GPL-2.0-or-later
 
@@ -36,6 +36,34 @@ Summary:        %{summary}
 %{_sysconfdir}/podmod.conf
 %{_mandir}
 
+%package        devel
+Summary:        %{summary}
+
+BuildArch:      noarch
+
+%description    devel %{_description}
+
+This package contains library source intended for building other packages which
+use the "%{crate}" crate.
+
+%files          devel
+%license %{crate_instdir}/COPYING
+%doc %{crate_instdir}/README.md
+%{crate_instdir}/
+
+%package     -n %{name}+default-devel
+Summary:        %{summary}
+
+BuildArch:      noarch
+
+%description -n %{name}+default-devel %{_description}
+
+This package contains library source intended for building other packages which
+use the "default" feature of the "%{crate}" crate.
+
+%files       -n %{name}+default-devel
+%ghost %{crate_instdir}/Cargo.toml
+
 %prep
 %autosetup -n %{crate}-%{version_no_tilde} -p1
 %cargo_prep
@@ -62,6 +90,9 @@ install -p -m0644 docs/*.5 %{buildroot}%{_mandir}/man5/
 %endif
 
 %changelog
+* Sat Oct 15 2022 Alpin H. Gencer <ah@gencer.us> 0.3.0-5
+- Create subpackages for split binary and library crates
+
 * Thu Oct 13 2022 Alpin H. Gencer <ah@gencer.us> 0.3.0-4
 - Bundle README as documentation in package
 
