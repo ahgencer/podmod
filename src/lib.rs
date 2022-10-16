@@ -17,20 +17,49 @@ use std::fs;
 use std::process::Command;
 use std::str;
 
+fn get_kernel_version() -> String {
+    let output = Command::new("uname").arg("-r").output().expect("Error while fetching kernel version");
+    String::from(str::trim(str::from_utf8(&output.stdout[..]).unwrap()))
+}
+
+fn image_name(module: &String) -> String {
+    format!("{}-{}", env!("CARGO_PKG_NAME"), module)
+}
+
+fn image_tag(kernel_version: &String) -> String {
+    format!("{}", kernel_version)
+}
+
 pub fn build(data_dir: &String, module: String, kernel_version: Option<String>) {
     let kernel_version = match kernel_version {
         Some(version) => version,
-        None => {
-            let output = Command::new("uname").arg("-r").output().expect("Error while fetching kernel version");
-            String::from(str::trim(str::from_utf8(&output.stdout[..]).unwrap()))
-        }
+        None => get_kernel_version(),
     };
 
+    let arch = Command::new("uname").arg("-p").output().expect("Error while fetching architecture");
+    let arch = String::from(str::trim(str::from_utf8(&arch.stdout[..]).unwrap()));
+
     println!("Building module {} for kernel version {}", module, kernel_version);
+
+    Command::new("podman")
+        .arg("build").arg("-t").arg(format!("{}-{}", image_name(&module), image_tag(&kernel_version)))
+        .arg("--build-arg").arg(format!("ARCH={}", arch))
+        .arg("--build-arg").arg(format!("KERNEL_VERSION={}", kernel_version))
+        .arg(format!("{}/modules/{}", data_dir, module))
+        .status()
+        .expect("Error while running podman build");
 }
 
-pub fn load(data_dir: &String, module: String) {
+pub fn load(module: String) {
+    let kernel_version = get_kernel_version();
+
     println!("Loading module {}", module);
+
+    Command::new("podman")
+        .arg("run").arg("--rm").arg("--privileged").arg(format!("{}-{}", image_name(&module), image_tag(&kernel_version)))
+        .arg("insmod").arg(format!("/usr/lib/modules/{}/extra/{}.ko", kernel_version, module))
+        .status()
+        .expect("Error while loading kernel module");
 }
 
 pub fn modules(data_dir: &String) {
@@ -43,6 +72,10 @@ pub fn modules(data_dir: &String) {
     }
 }
 
-pub fn unload(data_dir: &String, module: String) {
+pub fn unload(module: String) {
     println!("Unloading module {}", module);
+
+    Command::new("rmmod").arg(format!("{}", module))
+        .status()
+        .expect("Error while unloading kernel module");
 }

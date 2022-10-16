@@ -70,8 +70,8 @@ fn main() {
 
     match args.command {
         Command::Build { module, kernel_version } => build(&args.data_dir, module, kernel_version),
-        Command::Load { module } => load(&args.data_dir, module),
+        Command::Load { module } => load(module),
         Command::Modules {} => modules(&args.data_dir),
-        Command::Unload { module } => unload(&args.data_dir, module),
+        Command::Unload { module } => unload(module),
     };
 }

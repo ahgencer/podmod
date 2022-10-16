@@ -18,9 +18,9 @@ FROM registry.fedoraproject.org/fedora:latest AS builder
 
 ARG ARCH
 ARG KERNEL_VERSION
-ARG MODULE_SHA256
-ARG MODULE_VERSION
-ARG UPSTREAM
+ARG MODULE_SHA256="e0782b8abe8f2235e2734f725dc1533a0729e674c4b7834921ade43b9f04939b"
+ARG MODULE_VERSION="0.12.7"
+ARG UPSTREAM="https://github.com/umlaeute/v4l2loopback/archive/refs/tags/v$MODULE_VERSION.tar.gz"
 
 WORKDIR /tmp
 
@@ -56,7 +56,7 @@ RUN cd v4l2loopback-$MODULE_VERSION && \
 FROM registry.fedoraproject.org/fedora:latest AS staging
 
 ARG KERNEL_VERSION
-ARG MODULE_VERSION
+ARG MODULE_VERSION="0.12.7"
 
 # Install runtime dependencies
 RUN dnf install -y \
