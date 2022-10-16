@@ -87,7 +87,7 @@ install -p -m0644 docs/*.8 %{buildroot}%{_mandir}/man8/
 %endif
 
 %changelog
-* Sun Oct 16 2022 Alpin H. Gencer <ah@gencer.us> 0.3.2-3
+* Sun Oct 16 2022 Alpin H. Gencer <ah@gencer.us> 0.3.1-1
 - Configuration file removed in version 0.3.1
 
 * Sat Oct 15 2022 Alpin H. Gencer <ah@gencer.us> 0.3.0-5
