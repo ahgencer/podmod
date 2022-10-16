@@ -14,7 +14,7 @@
  */
 
 use clap::{Parser, Subcommand};
-
+use nix::unistd::Uid;
 use podmod::*;
 
 #[derive(Parser)]
@@ -62,6 +62,11 @@ enum Command {
 
 fn main() {
     let args = Args::parse();
+
+    // Ensure program is run as root
+    if !Uid::effective().is_root() {
+        panic!("Must be run as root");
+    }
 
     match args.command {
         Command::Build { module, kernel_version } => build(&args.data_dir, module, kernel_version),
