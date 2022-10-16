@@ -22,5 +22,5 @@ exclude = [
 ]
 
 [dependencies]
-clap = { version = "3.1.2", features = ["derive"] }
-nix = "0.23.1"
+clap = { version = "3.2.20", features = ["derive"] }
+nix = "0.24.2"
