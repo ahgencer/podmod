@@ -20,10 +20,6 @@ use podmod::*;
 #[derive(Parser)]
 #[clap(version, about, long_about = None)]
 struct Args {
-    /// Use CONFIG as configuration
-    #[clap(short, long, default_value = "/etc/podmod.conf")]
-    config: String,
-
     /// Path to shared architecture-independent files
     #[clap(long, default_value = "/usr/share/podmod")]
     data_dir: String,

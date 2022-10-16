@@ -4,8 +4,8 @@
 %global crate podmod
 
 Name:           rust-%{crate}
-Version:        0.3.0
-Release:        5%{?dist}
+Version:        0.3.1
+Release:        1%{?dist}
 Summary:        Containerized build system for kernel modules on Fedora
 License:        GPL-2.0-or-later
 
@@ -33,7 +33,6 @@ Summary:        %{summary}
 %doc README.md
 %{_sbindir}/podmod
 %{_datadir}/podmod/
-%{_sysconfdir}/podmod.conf
 %{_mandir}
 
 %package        devel
@@ -77,12 +76,10 @@ use the "default" feature of the "%{crate}" crate.
 %install
 %cargo_install -a
 mv %{buildroot}%{_bindir} %{buildroot}%{_sbindir}
-mkdir -p %{buildroot}%{_datadir}/podmod/ %{buildroot}%{_sysconfdir}
-mkdir -p %{buildroot}%{_mandir}/man8/ %{buildroot}%{_mandir}/man5/
+mkdir -p %{buildroot}%{_datadir}/podmod/
+mkdir -p %{buildroot}%{_mandir}/man8/
 cp -pr share/modules/ %{buildroot}%{_datadir}/podmod/
-install -p -m0755 extra/podmod.conf %{buildroot}%{_sysconfdir}
 install -p -m0644 docs/*.8 %{buildroot}%{_mandir}/man8/
-install -p -m0644 docs/*.5 %{buildroot}%{_mandir}/man5/
 
 %if %{with check}
 %check
@@ -90,6 +87,9 @@ install -p -m0644 docs/*.5 %{buildroot}%{_mandir}/man5/
 %endif
 
 %changelog
+* Sun Oct 16 2022 Alpin H. Gencer <ah@gencer.us> 0.3.1-1
+- Configuration file removed in version 0.3.1
+
 * Sat Oct 15 2022 Alpin H. Gencer <ah@gencer.us> 0.3.0-5
 - Create subpackages for split binary and library crates
 

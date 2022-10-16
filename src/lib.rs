@@ -36,7 +36,7 @@ pub fn load(data_dir: &String, module: String) {
 pub fn modules(data_dir: &String) {
     println!("The following kernel modules are supported:");
 
-    let modules = fs::read_dir(format!("{}/modules", data_dir)).unwrap();
+    let modules = fs::read_dir(format!("{}/modules", data_dir)).expect("Error while reading data directory");
 
     for module in modules {
         println!("{}", module.unwrap().path().file_name().unwrap().to_str().unwrap())

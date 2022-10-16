@@ -1,17 +1,31 @@
-.TH PODMOD 8 "October 2022" "podmod v0.2.2" "Podmod"
+.TH PODMOD 8 "October 2022" "podmod v0.3.1" "Podmod"
 .SH NAME
 podmod \- Containerized build system for kernel modules on Fedora.
 .SH SYNOPSIS
 .B podmod
--m <\fI\,MODULE\/\fR>
 [\fI\,OPTIONS\/\fR]
 <\fI\,COMMAND\/\fR>
+.PP
+.B podmod modules
+.PP
+.B podmod <build|load|unload> -m
+<\fI\,MODULE\/\fR>
 .SH DESCRIPTION
 Builds a kernel module from source inside a Podman container.
 Targeted for Fedora Silverblue / Kinoite, but also works for other editions.
 .PP
 \fBNote:\fR This program must be executed with root privileges.
-.SH COMMANDS
+.SH OPTIONS
+.TP
+\fB\-\-data\-dir\fR \fI\,DATA_DIR\/\fR
+Path to shared architecture-independent files.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Print help information.
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Print version information.
+.SH SUBCOMMANDS
 .TP
 \fBbuild\fR
 Build the kernel module.
@@ -19,38 +33,11 @@ Build the kernel module.
 \fBload\fR
 Load the kernel module. The module must already be built for this.
 .TP
+\fBmodules\fR
+List supported kernel modules.
+.TP
 \fBunload\fR
 Unload the kernel module.
-.SH OPTIONS
-.TP
-\fB\-h\fR, \fB\-\-help\fR
-Show help and quit.
-.TP
-\fB\-k\fR, \fB\-\-kernel\-version\fR \fI\,VERSION\/\fR
-Target the kernel version \fI\,VERSION\/\fR. Defaults to the current running kernel.
-.TP
-\fB\-m\fR, \fB\-\-module\fR \fI\,MODULE\/\fR
-Work on the module \fI\,MODULE\/\fR. \fBRequired.\fR
-.TP
-\fB\-V\fR, \fB\-\-version\fR
-Show version and quit.
-.SH "EXIT STATUSES"
-.TP
-\fB0\fR
-Success.
-.TP
-\fB1\fR
-Invalid invocation. Either an invalid or unrecognized argument was passed, or
-the script was otherwise used incorrectly.
-.TP
-\fB\2\fR
-Missing dependency.
-.TP
-\fB\3\fR
-Logic error. Usually, this indicates that the module is already built, loaded, or unloaded.
-.TP
-\fB\200\fR
-A bug occurred within the script.
 .SH AUTHOR
 Written by Alpin H. Gencer <ah@gencer.us>.
 .SH COPYRIGHT
@@ -67,6 +54,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 .SH "SEE ALSO"
-podmod.conf(5), dkms(8), kmod(8)
+dkms(8), kmod(8)
 .PP
 You can download a full copy of the source code at <https://github.com/ahgencer/podmod>.
