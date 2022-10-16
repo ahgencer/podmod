@@ -13,8 +13,64 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use podmod::run;
+use clap::{Parser, Subcommand};
+
+use podmod::*;
+
+#[derive(Parser)]
+#[clap(version, about, long_about = None)]
+struct Args {
+    /// Use CONFIG as configuration
+    #[clap(short, long, default_value = "/etc/podmod.conf")]
+    config: String,
+
+    /// Path to shared architecture-independent files
+    #[clap(long, default_value = "/usr/share/podmod")]
+    data_dir: String,
+
+    /// Use CONFIG as configuration
+    #[clap(subcommand)]
+    command: Command,
+}
+
+#[derive(Subcommand)]
+enum Command {
+    /// Build the kernel module
+    Build {
+        /// Work on the module MODULE. Required
+        #[clap(short, long)]
+        module: String,
+
+        /// Target the kernel version KERNEL_VERSION. [default: the current kernel version]
+        #[clap(long)]
+        kernel_version: Option<String>,
+    },
+
+    /// Load the kernel module. The module must already be built for this
+    Load {
+        /// Work on the module MODULE. Required
+        #[clap(short, long)]
+        module: String,
+    },
+
+    /// List supported kernel modules
+    Modules {},
+
+    /// Unload the kernel module
+    Unload {
+        /// Work on the module MODULE. Required
+        #[clap(short, long)]
+        module: String,
+    },
+}
 
 fn main() {
-    run();
+    let args = Args::parse();
+
+    match args.command {
+        Command::Build { module, kernel_version } => build(&args.data_dir, module, kernel_version),
+        Command::Load { module } => load(&args.data_dir, module),
+        Command::Modules {} => modules(&args.data_dir),
+        Command::Unload { module } => unload(&args.data_dir, module),
+    };
 }
