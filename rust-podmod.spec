@@ -31,6 +31,7 @@ Summary:        %{summary}
 %files       -n %{crate}
 %license COPYING
 %doc README.md
+%doc CHANGELOG.md
 %{_sbindir}/podmod
 %{_datadir}/podmod/
 %{_mandir}
@@ -47,6 +48,7 @@ use the "%{crate}" crate.
 %files          devel
 %license %{crate_instdir}/COPYING
 %doc %{crate_instdir}/README.md
+%doc %{crate_instdir}/CHANGELOG.md
 %{crate_instdir}/
 
 %package     -n %{name}+default-devel
