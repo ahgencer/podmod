@@ -1,6 +1,6 @@
 # Installation
 
-*podmod* is available as a [COPR](https://docs.fedoraproject.org/en-US/infra/sysadmin_guide/copr/) repository
+*podmod* is available as a [Copr](https://docs.fedoraproject.org/en-US/infra/sysadmin_guide/copr/) repository
 at [ahgencer/podmod](https://copr.fedorainfracloud.org/coprs/ahgencer/podmod/).
 
 On `dnf` based editions (Workstation, Server, etc.), you can install it the usual way with:

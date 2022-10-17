@@ -8,7 +8,7 @@
 </p>
 
 - GitHub: https://github.com/ahgencer/podmod
-- COPR: https://copr.fedorainfracloud.org/coprs/ahgencer/podmod/
+- Copr: https://copr.fedorainfracloud.org/coprs/ahgencer/podmod/
 - crates.io: https://crates.io/crates/podmod
 - Issues: https://github.com/ahgencer/podmod/issues
 
