@@ -16,8 +16,8 @@
 systems such as Silverblue / Kinoite and CoreOS.*
 
 *podmod* builds kernel modules from source inside a [Podman](https://podman.io/) container and allows you to load it
-without modifying any part of the filesystem on the host. It provides a Rust frontend that can sources the build steps
-of a module from a Containerfile, and then load and unload the module. The process is:
+without modifying any part of the filesystem on the host. It provides a [Rust](https://rust-lang.org/) frontend that can
+sources the build steps of a module from a Containerfile, and then load and unload the module. The process is:
 
 - You call `podmod build` with the name of the kernel module.
 - *podmod* searches `share/modules/` for the module and builds the kernel module as part of a new container image.
