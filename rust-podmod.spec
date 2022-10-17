@@ -4,8 +4,8 @@
 %global crate podmod
 
 Name:           rust-%{crate}
-Version:        0.3.2
-Release:        3%{?dist}
+Version:        0.3.3
+Release:        1%{?dist}
 Summary:        Containerized build system for kernel modules on Fedora
 License:        GPL-2.0-or-later
 
