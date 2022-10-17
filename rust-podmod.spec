@@ -7,8 +7,8 @@ Name:           rust-%{crate}
 Version:        0.3.3
 Release:        1%{?dist}
 Summary:        Containerized build system for kernel modules on Fedora
-License:        GPL-2.0-or-later
 
+License:        GPL-2.0-or-later
 URL:            https://crates.io/crates/%{crate}
 Source0:        %{crates_source}
 
@@ -37,7 +37,6 @@ Summary:        %{summary}
 
 %package        devel
 Summary:        %{summary}
-
 BuildArch:      noarch
 
 %description    devel %{_description}
@@ -52,7 +51,6 @@ use the "%{crate}" crate.
 
 %package     -n %{name}+default-devel
 Summary:        %{summary}
-
 BuildArch:      noarch
 
 %description -n %{name}+default-devel %{_description}
@@ -68,13 +66,13 @@ use the "default" feature of the "%{crate}" crate.
 %cargo_prep
 
 %generate_buildrequires
-%cargo_generate_buildrequires -a
+%cargo_generate_buildrequires
 
 %build
-%cargo_build -a
+%cargo_build
 
 %install
-%cargo_install -a
+%cargo_install
 mv %{buildroot}%{_bindir} %{buildroot}%{_sbindir}
 mkdir -p %{buildroot}%{_datadir}/podmod/
 mkdir -p %{buildroot}%{_mandir}/man8/
