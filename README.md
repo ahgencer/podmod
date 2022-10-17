@@ -8,6 +8,7 @@
 </p>
 
 - GitHub: https://github.com/ahgencer/podmod
+- COPR: https://copr.fedorainfracloud.org/coprs/ahgencer/podmod/
 - crates.io: https://crates.io/crates/podmod
 - Issues: https://github.com/ahgencer/podmod/issues
 
@@ -15,12 +16,11 @@
 systems such as Silverblue / Kinoite and CoreOS.*
 
 *podmod* builds kernel modules from source inside a [Podman](https://podman.io/) container and allows you to load it
-without modifying any part of the filesystem on the host. It provides a small POSIX frontend to source the build steps
-of a module as a Containerfile, and to load and unload the module. The process is:
+without modifying any part of the filesystem on the host. It provides a Rust frontend that can sources the build steps
+of a module from a Containerfile, and then load and unload the module. The process is:
 
 - You call `podmod build` with the name of the kernel module.
-- *podmod* searches `share/modules/` for the module, sources the `manifest.sh` file, and builds the kernel module as
-  part of a new container image.
+- *podmod* searches `share/modules/` for the module and builds the kernel module as part of a new container image.
 - You can then load or unload the module with `podmod load` or `podmod unload`. *podmod* will
   call [insmod(8)](https://manpages.org/insmod/8) or [rmmod(8)](https://manpages.org/rmmod/8) from **inside** the
   container to load or unload the module on the host.
@@ -54,8 +54,8 @@ cases where the module in question is either not packages for Fedora yet, or whe
 ### Wil this work on distributions other than Fedora?
 
 **No.** The modules are built against Fedora's kernel packages from [Koji](https://koji.fedoraproject.org/koji/) and are
-incompatible with others. This restriction also includes distributions that are downstream from Fedora, such
-as [CentOS](https://centos.org/) and [RHEL](https://redhat.com/en/technologies/linux-platforms/enterprise-linux).
+incompatible with other distributions. This restriction also excludes distributions that are downstream from Fedora,
+such as [CentOS](https://centos.org/) and [RHEL](https://redhat.com/en/technologies/linux-platforms/enterprise-linux).
 
 You are welcome to adapt *podmod* to use different Containerfiles targeting other distributions, though!
 
@@ -75,11 +75,11 @@ You may also refer to the manpage [podmod(8)](docs/podmod.8).
 
 To build a kernel module, run:
 
-    $ podmod -m <MODULE> build
+    $ podmod build -m <MODULE>
 
 Afterwards, you can load it with:
 
-    $ podmod -m <MODULE> load
+    $ podmod load -m <MODULE>
 
 ## License
 
