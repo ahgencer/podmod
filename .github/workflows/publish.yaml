@@ -29,7 +29,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: cargo_publish
     steps:
-      - name: Trigger build with webhook
-        uses: joelwmale/webhook-action@2.1.0
-        with:
-          url: ${{ secrets.COPR_WEBHOOK_URL }}
+      - run: curl -X POST ${COPR_WEBHOOK_URL}
+        env:
+          COPR_WEBHOOK_URL: ${{ secrets.COPR_WEBHOOK_URL }}
