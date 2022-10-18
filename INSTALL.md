@@ -17,6 +17,8 @@ to `/etc/yum.repos.d/`:
 
 Where `VERSION` is your Fedora version, as defined in `/etc/os-release` (eg. `36` or `rawhide`).
 
+> **Note:** *podmod* will not work when it is installed inside a container, as the Podman commands will fail.
+
 ## Building from source
 
 *podmod* is built as an RPM package using [Tito](https://github.com/rpm-software-management/tito). To build the package
@@ -30,7 +32,7 @@ a [Toolbx](https://docs.fedoraproject.org/en-US/fedora-silverblue/toolbox/) cont
 
 Then build the latest stable version of the package with:
 
-    # tito build -o dist/ --rpm
+    # tito build -o dist/ [--test] --rpm
 
 The locally built RPM and SRPM packages will be inside the `dist/` directory.
 
