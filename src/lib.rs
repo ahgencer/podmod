@@ -68,7 +68,13 @@ fn image_exists(identifier: &str) -> bool {
         .success()
 }
 
-pub fn build(data_dir: &str, idempotent: bool, module: &str, kernel_version: Option<String>) {
+pub fn build(
+    data_dir: &str,
+    idempotent: bool,
+    kernel_version: Option<String>,
+    module: &str,
+    no_prune: bool,
+) {
     // Ensure module is supported
     if !module_is_supported(&data_dir, &module) {
         panic!("Module {} is not supported", module);
@@ -113,13 +119,15 @@ pub fn build(data_dir: &str, idempotent: bool, module: &str, kernel_version: Opt
     assert!(success, "Error while running build kernel module");
 
     // Prune intermediary images
-    let success = Command::new("podman")
-        .args(["system", "prune", "-f"])
-        .status()
-        .unwrap()
-        .success();
+    if !no_prune {
+        let success = Command::new("podman")
+            .args(["system", "prune", "-f"])
+            .status()
+            .unwrap()
+            .success();
 
-    assert!(success, "Error while pruning old images");
+        assert!(success, "Error while pruning old images");
+    }
 }
 
 pub fn load(idempotent: bool, module: &str) {

@@ -42,9 +42,13 @@ enum Command {
         #[clap(long)]
         kernel_version: Option<String>,
 
-        /// Work on the module MODULE. Required
+        /// Work on the module MODULE
         #[clap(short, long)]
         module: String,
+
+        /// Don't prune old images after building
+        #[clap(long)]
+        no_prune: bool,
     },
 
     /// Load the kernel module. The module must already be built for this
@@ -53,7 +57,7 @@ enum Command {
         #[clap(short, long)]
         idempotent: bool,
 
-        /// Work on the module MODULE. Required
+        /// Work on the module MODULE
         #[clap(short, long)]
         module: String,
     },
@@ -67,7 +71,7 @@ enum Command {
         #[clap(short, long)]
         idempotent: bool,
 
-        /// Work on the module MODULE. Required
+        /// Work on the module MODULE
         #[clap(short, long)]
         module: String,
     },
@@ -91,9 +95,10 @@ fn main() {
     match args.command {
         Command::Build {
             idempotent,
-            module,
             kernel_version,
-        } => build(&args.data_dir, idempotent, &module, kernel_version),
+            module,
+            no_prune,
+        } => build(&args.data_dir, idempotent, kernel_version, &module, no_prune),
         Command::Load {
             idempotent,
             module,

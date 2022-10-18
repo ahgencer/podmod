@@ -6,6 +6,7 @@ These are the changes that have not been released yet. The release notes have no
 
 **FEATURE ENCHANCEMENTS:**
 
+- Add `--no-prune` option to `build`.
 - Add `--idempotent` option to `build`, `load`, and `unload`.
     - Use in systemd unit.
 
