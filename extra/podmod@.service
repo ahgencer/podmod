@@ -5,8 +5,8 @@ Documentation=man:podmod(8)
 [Service]
 Type=oneshot
 RemainAfterExit=true
-ExecStart=/usr/sbin/podmod load --module %i
-ExecStop=/usr/sbin/podmod unload --module %i
+ExecStart=/usr/sbin/podmod load --module %i --idempotent
+ExecStop=/usr/sbin/podmod unload --module %i --idempotent
 
 [Install]
 WantedBy=multi-user.target

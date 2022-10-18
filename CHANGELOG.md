@@ -6,7 +6,8 @@ These are the changes that have not been released yet. The release notes have no
 
 **FEATURE ENCHANCEMENTS:**
 
-- Add idempotency flag to `build`, `load`, and `unload` commands.
+- Add `--idempotent` option to `build`, `load`, and `unload`.
+    - Use in systemd unit.
 
 ## v0.3.5 (2022-10-18)
 
