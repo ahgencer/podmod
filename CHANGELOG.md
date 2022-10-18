@@ -4,6 +4,10 @@
 
 These are the changes that have not been released yet. The release notes have not yet been written.
 
+**FEATURE ENCHANCEMENTS:**
+
+- Prune old images after building module.
+
 **BUG FIXES:**
 
 - `module_is_supported()` function checking for wrong path.

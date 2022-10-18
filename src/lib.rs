@@ -107,6 +107,15 @@ pub fn build(data_dir: &str, module: &str, kernel_version: Option<String>) {
         .success();
 
     assert!(success, "Error while running build kernel module");
+
+    // Prune intermediary images
+    let success = Command::new("podman")
+        .args(["system", "prune", "-f"])
+        .status()
+        .unwrap()
+        .success();
+
+    assert!(success, "Error while pruning old images");
 }
 
 pub fn load(module: &str) {
