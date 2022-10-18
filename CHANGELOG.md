@@ -4,6 +4,10 @@
 
 These are the changes that have not been released yet. The release notes have not yet been written.
 
+**BUG FIXES:**
+
+- `module_is_supported()` function checking for wrong path.
+
 ## v0.3.4 (2022-10-18)
 
 **FEATURE ENCHANCEMENTS:**

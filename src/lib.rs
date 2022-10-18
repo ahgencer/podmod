@@ -56,7 +56,7 @@ fn module_is_loaded(module: &str) -> bool {
 }
 
 fn module_is_supported(data_dir: &str, module: &str) -> bool {
-    let path = format!("{}/{}", data_dir, module);
+    let path = format!("{}/modules/{}", data_dir, module);
     Path::new(&path).is_dir()
 }
 
