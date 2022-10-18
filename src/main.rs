@@ -16,6 +16,7 @@
 use clap::{Parser, Subcommand};
 use nix::unistd::Uid;
 use podmod::*;
+use std::env;
 
 #[derive(Parser)]
 #[clap(version, about, long_about = None)]
@@ -33,13 +34,13 @@ struct Args {
 enum Command {
     /// Build the kernel module
     Build {
-        /// Work on the module MODULE. Required
-        #[clap(short, long)]
-        module: String,
-
         /// Target the kernel version KERNEL_VERSION. [default: the current kernel version]
         #[clap(long)]
         kernel_version: Option<String>,
+
+        /// Work on the module MODULE. Required
+        #[clap(short, long)]
+        module: String,
     },
 
     /// Load the kernel module. The module must already be built for this
@@ -61,13 +62,20 @@ enum Command {
 }
 
 fn main() {
+    // Let clap parse command line arguments
     let args = Args::parse();
+
+    // Ensure running on Linux
+    if env::consts::OS != "linux" {
+        panic!("Must run on Linux");
+    }
 
     // Ensure program is run as root
     if !Uid::effective().is_root() {
         panic!("Must be run as root");
     }
 
+    // Call appropriate functions from library
     match args.command {
         Command::Build { module, kernel_version } => build(&args.data_dir, module, kernel_version),
         Command::Load { module } => load(module),
