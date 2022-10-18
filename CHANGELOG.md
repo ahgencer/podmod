@@ -6,6 +6,7 @@ These are the changes that have not been released yet. The release notes have no
 
 **FEATURE ENCHANCEMENTS:**
 
+- Add systemd unit service to load modules on boot.
 - Add `CHANGELOG.md` into RPM package.
 - Add note on Podman in Podman to installation instructions.
 - Add optional `--test` flag in build instructions.

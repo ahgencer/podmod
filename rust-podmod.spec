@@ -15,6 +15,7 @@ Source0:        %{crates_source}
 ExclusiveArch:  %{rust_arches}
 
 BuildRequires:  rust-packaging
+BuildRequires:  systemd-rpm-macros
 Requires:       podman
 
 %global _description %{expand:
@@ -34,7 +35,8 @@ Summary:        %{summary}
 %doc CHANGELOG.md
 %{_sbindir}/podmod
 %{_datadir}/podmod/
-%{_mandir}
+%{_mandir}/
+%{_unitdir}/podmod@.service
 
 %package        devel
 Summary:        %{summary}
@@ -78,12 +80,14 @@ use the "default" feature of the "%{crate}" crate.
 mv %{buildroot}%{_bindir} %{buildroot}%{_sbindir}
 mkdir -p %{buildroot}%{_datadir}/podmod/
 mkdir -p %{buildroot}%{_mandir}/man8/
+mkdir -p %{buildroot}%{_unitdir}
 cp -pr share/modules/ %{buildroot}%{_datadir}/podmod/
 install -p -m0644 docs/*.8 %{buildroot}%{_mandir}/man8/
+install -p -m0644 extra/podmod@.service %{buildroot}%{_unitdir}
 
 %if %{with check}
 %check
-%cargo_test -a
+%cargo_test
 %endif
 
 %changelog

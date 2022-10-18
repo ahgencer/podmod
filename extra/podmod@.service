@@ -1,0 +1,12 @@
+[Unit]
+Description=Containerized build system for kernel module for %i
+Documentation=man:podmod(8)
+
+[Service]
+Type=oneshot
+RemainAfterExit=true
+ExecStart=/usr/sbin/podmod load --module %i
+ExecStop=/usr/sbin/podmod unload --module %i
+
+[Install]
+WantedBy=multi-user.target
