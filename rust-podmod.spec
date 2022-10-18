@@ -4,7 +4,7 @@
 %global crate podmod
 
 Name:           rust-%{crate}
-Version:        0.3.3
+Version:        0.3.4
 Release:        1%{?dist}
 Summary:        Containerized build system for kernel modules on Fedora
 
