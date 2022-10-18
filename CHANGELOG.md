@@ -4,6 +4,8 @@
 
 These are the changes that have not been released yet. The release notes have not yet been written.
 
+## v0.3.5 (2022-10-18)
+
 **FEATURE ENCHANCEMENTS:**
 
 - Prune old images after building module.
