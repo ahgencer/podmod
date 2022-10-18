@@ -68,7 +68,7 @@ fn image_exists(identifier: &str) -> bool {
         .success()
 }
 
-pub fn build(data_dir: &str, module: &str, kernel_version: Option<String>) {
+pub fn build(data_dir: &str, idempotent: bool, module: &str, kernel_version: Option<String>) {
     // Ensure module is supported
     if !module_is_supported(&data_dir, &module) {
         panic!("Module {} is not supported", module);
@@ -91,6 +91,10 @@ pub fn build(data_dir: &str, module: &str, kernel_version: Option<String>) {
 
     // Check for existing image
     if image_exists(&get_image_identifier(&module, &kernel_version)) {
+        if idempotent {
+            return;
+        }
+
         panic!("Module {} is already built", module);
     }
 
@@ -118,7 +122,7 @@ pub fn build(data_dir: &str, module: &str, kernel_version: Option<String>) {
     assert!(success, "Error while pruning old images");
 }
 
-pub fn load(module: &str) {
+pub fn load(idempotent: bool, module: &str) {
     let kernel_version = get_kernel_version();
 
     // Ensure module is built
@@ -128,6 +132,10 @@ pub fn load(module: &str) {
 
     // Ensure module is not loaded
     if module_is_loaded(&module) {
+        if idempotent {
+            return;
+        }
+
         panic!("Module {} is already loaded", module);
     }
 
@@ -164,9 +172,13 @@ pub fn modules(data_dir: &str) {
     }
 }
 
-pub fn unload(module: &str) {
+pub fn unload(idempotent: bool, module: &str) {
     // Ensure module is loaded
     if !module_is_loaded(&module) {
+        if idempotent {
+            return;
+        }
+
         panic!("Module {} is not loaded", module);
     }
 

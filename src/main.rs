@@ -34,6 +34,10 @@ struct Args {
 enum Command {
     /// Build the kernel module
     Build {
+        /// Quietly exit if module is already built
+        #[clap(short, long)]
+        idempotent: bool,
+
         /// Target the kernel version KERNEL_VERSION. [default: the current kernel version]
         #[clap(long)]
         kernel_version: Option<String>,
@@ -45,6 +49,10 @@ enum Command {
 
     /// Load the kernel module. The module must already be built for this
     Load {
+        /// Quietly exit if module is already loaded
+        #[clap(short, long)]
+        idempotent: bool,
+
         /// Work on the module MODULE. Required
         #[clap(short, long)]
         module: String,
@@ -55,6 +63,10 @@ enum Command {
 
     /// Unload the kernel module
     Unload {
+        /// Quietly exit if module is not loaded
+        #[clap(short, long)]
+        idempotent: bool,
+
         /// Work on the module MODULE. Required
         #[clap(short, long)]
         module: String,
@@ -77,9 +89,19 @@ fn main() {
 
     // Call appropriate functions from library
     match args.command {
-        Command::Build { module, kernel_version } => build(&args.data_dir, &module, kernel_version),
-        Command::Load { module } => load(&module),
+        Command::Build {
+            idempotent,
+            module,
+            kernel_version,
+        } => build(&args.data_dir, idempotent, &module, kernel_version),
+        Command::Load {
+            idempotent,
+            module,
+        } => load(idempotent, &module),
         Command::Modules {} => modules(&args.data_dir),
-        Command::Unload { module } => unload(&module),
+        Command::Unload {
+            idempotent,
+            module,
+        } => unload(idempotent, &module),
     };
 }
