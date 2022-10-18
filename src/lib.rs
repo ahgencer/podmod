@@ -14,23 +14,66 @@
  */
 
 use std::fs;
+use std::path::Path;
 use std::process::Command;
+use std::process::Stdio;
 use std::str;
 
 fn get_kernel_version() -> String {
-    let output = Command::new("uname").arg("-r").output().expect("Error while fetching kernel version");
-    String::from(str::trim(str::from_utf8(&output.stdout[..]).unwrap()))
+    // Get kernel version
+    let output = Command::new("uname")
+        .arg("-r")
+        .output()
+        .expect("Error while fetching kernel version");
+
+    // Parse stdout into str
+    let output = str::from_utf8(&output.stdout[..]).unwrap();
+
+    // Trim whitespace and newlines
+    let output = str::trim(output);
+
+    String::from(output)
 }
 
-fn image_name(module: &String) -> String {
-    format!("{}-{}", env!("CARGO_PKG_NAME"), module)
+fn get_image_identifier(module: &str, kernel_version: &str) -> String {
+    format!("{}-{}:{}", env!("CARGO_PKG_NAME"), module, kernel_version)
 }
 
-fn image_tag(kernel_version: &String) -> String {
-    format!("{}", kernel_version)
+fn module_is_loaded(module: &str) -> bool {
+    let lsmod = Command::new("lsmod")
+        .stdout(Stdio::piped())
+        .spawn()
+        .unwrap();
+
+    let mut grep = Command::new("grep")
+        .arg(&module)
+        .stdin(Stdio::from(lsmod.stdout.unwrap()))
+        .stdout(Stdio::null())
+        .spawn()
+        .unwrap();
+
+    grep.wait().unwrap().success()
 }
 
-pub fn build(data_dir: &String, module: String, kernel_version: Option<String>) {
+fn module_is_supported(data_dir: &str, module: &str) -> bool {
+    let path = format!("{}/{}", data_dir, module);
+    Path::new(&path).is_dir()
+}
+
+fn image_exists(identifier: &str) -> bool {
+    Command::new("podman")
+        .args(["image", "exists", identifier])
+        .status()
+        .unwrap()
+        .success()
+}
+
+pub fn build(data_dir: &str, module: &str, kernel_version: Option<String>) {
+    // Ensure module is supported
+    if !module_is_supported(&data_dir, &module) {
+        panic!("Module {} is not supported", module);
+    }
+
     // Get kernel version
     let kernel_version = match kernel_version {
         Some(version) => version,
@@ -43,35 +86,57 @@ pub fn build(data_dir: &String, module: String, kernel_version: Option<String>) 
         .output()
         .expect("Error while fetching CPU architecture");
 
-    let arch = String::from(str::trim(str::from_utf8(&arch.stdout[..]).unwrap()));
+    let arch = str::from_utf8(&arch.stdout).unwrap();
+    let arch = str::trim(arch);
 
-    println!("Building module {} for kernel version {}", module, kernel_version);
+    // Check for existing image
+    if image_exists(&get_image_identifier(&module, &kernel_version)) {
+        panic!("Module {} is already built", module);
+    }
+
+    println!("Building module {} for kernel version {} ...", module, kernel_version);
 
     // Build new container image
-    Command::new("podman")
-        .args(["build", "-t", format!("{}-{}", image_name(&module), image_tag(&kernel_version))])
-        .args(["--build-arg", format!("ARCH={}", arch)])
-        .args(["--build-arg", format!("KERNEL_VERSION={}", kernel_version)])
+    let success = Command::new("podman")
+        .args(["build", "-t", &get_image_identifier(&module, &kernel_version)])
+        .args(["--build-arg", format!("ARCH={}", arch).as_str()])
+        .args(["--build-arg", format!("KERNEL_VERSION={}", kernel_version).as_str()])
         .arg(format!("{}/modules/{}", data_dir, module))
         .status()
-        .expect("Error while running build kernel module");
+        .unwrap()
+        .success();
+
+    assert!(success, "Error while running build kernel module");
 }
 
-pub fn load(module: String) {
+pub fn load(module: &str) {
     let kernel_version = get_kernel_version();
 
-    println!("Loading module {}", module);
+    // Ensure module is built
+    if !image_exists(&get_image_identifier(&module, &kernel_version)) {
+        panic!("Module {} is not built", module);
+    }
+
+    // Ensure module is not loaded
+    if module_is_loaded(&module) {
+        panic!("Module {} is already loaded", module);
+    }
+
+    println!("Loading module {} ...", module);
 
     // Run insmod inside new container
-    Command::new("podman")
+    let success = Command::new("podman")
         .args(["run", "--rm", "--privileged"])
-        .arg(format!("{}-{}", image_name(&module), image_tag(&kernel_version)))
-        .args(["insmod", format!("/usr/lib/modules/{}/extra/{}.ko", kernel_version, module)])
+        .arg(get_image_identifier(&module, &kernel_version))
+        .args(["insmod", format!("/usr/lib/modules/{}/extra/{}.ko", kernel_version, module).as_str()])
         .status()
-        .expect("Error while loading kernel module");
+        .unwrap()
+        .success();
+
+    assert!(success, "Error while loading kernel module");
 }
 
-pub fn modules(data_dir: &String) {
+pub fn modules(data_dir: &str) {
     println!("The following kernel modules are supported:");
 
     // Read file paths in modules data directory
@@ -80,21 +145,30 @@ pub fn modules(data_dir: &String) {
 
     for module in modules {
         // Get file name
-        let module = module.unwrap().path().file_name();
+        let module = module.unwrap().path();
+        let module = module.file_name();
 
         // Get basename
         let module = module.unwrap().to_str().unwrap();
 
-        println!(module);
+        println!("{}", module);
     }
 }
 
-pub fn unload(module: String) {
-    println!("Unloading module {}", module);
+pub fn unload(module: &str) {
+    // Ensure module is loaded
+    if !module_is_loaded(&module) {
+        panic!("Module {} is not loaded", module);
+    }
+
+    println!("Unloading module {} ...", module);
 
     // Run rmmod (doesn't need to be inside a container)
-    Command::new("rmmod")
+    let success = Command::new("rmmod")
         .arg(format!("{}", module))
         .status()
-        .expect("Error while unloading kernel module");
+        .unwrap()
+        .success();
+
+    assert!(success, "Error while unloading kernel module");
 }

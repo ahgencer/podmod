@@ -11,6 +11,10 @@ These are the changes that have not been released yet. The release notes have no
 - Add note on Podman in Podman to installation instructions.
 - Add optional `--test` flag in build instructions.
 
+**BUG FIXES:**
+
+- Add missing checks for subcommands.
+
 ## v0.3.3 (2022-10-17)
 
 **WORKFLOW CHANGES:**
