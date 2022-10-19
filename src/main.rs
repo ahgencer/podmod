@@ -19,6 +19,7 @@ use podmod::*;
 use std::env;
 use std::fs;
 use toml::Value;
+use toml::value::Table;
 
 #[derive(Parser)]
 #[clap(version, about, long_about = None)]
@@ -117,7 +118,21 @@ fn main() {
             build(data_dir, idempotent, kernel_version, &module, no_prune)
         }
         Command::Load { idempotent, module } => {
-            load(idempotent, &module)
+            let default = Table::new();
+            let module_config = match config.get(&module) {
+                Some(value) => value.as_table().unwrap(),
+                None => &default,
+            };
+
+            let default = Vec::new();
+            let kernel_args = match module_config.get("kernel_args") {
+                Some(value) => value.as_array().expect("Configuration option 'kernel_args' must have an array value"),
+                None => &default,
+            };
+
+            let kernel_args: Vec<_> = kernel_args.iter().map(|v| v.as_str().unwrap()).collect();
+
+            load(idempotent, &module, &kernel_args)
         }
         Command::Modules {} => {
             modules(data_dir)

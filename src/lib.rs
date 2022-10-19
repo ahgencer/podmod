@@ -130,7 +130,7 @@ pub fn build(
     }
 }
 
-pub fn load(idempotent: bool, module: &str) {
+pub fn load(idempotent: bool, module: &str, kernel_args: &Vec<&str>) {
     let kernel_version = get_kernel_version();
 
     // Ensure module is built
@@ -154,6 +154,7 @@ pub fn load(idempotent: bool, module: &str) {
         .args(["run", "--rm", "--privileged"])
         .arg(get_image_identifier(&module, &kernel_version))
         .args(["insmod", format!("/usr/lib/modules/{}/extra/{}.ko", kernel_version, module).as_str()])
+        .args(kernel_args)
         .status()
         .unwrap()
         .success();

@@ -7,6 +7,7 @@ These are the changes that have not been released yet. The release notes have no
 **FEATURE ENCHANCEMENTS:**
 
 - Re-add configuration file `podmod.conf`.
+    - Specify kernel module parameters in configuration file.
 
 - Add `--no-prune` option to `build`.
 
