@@ -17,13 +17,15 @@ use clap::{Parser, Subcommand};
 use nix::unistd::Uid;
 use podmod::*;
 use std::env;
+use std::fs;
+use toml::Value;
 
 #[derive(Parser)]
 #[clap(version, about, long_about = None)]
 struct Args {
-    /// Path to shared architecture-independent files
-    #[clap(long, default_value = "/usr/share/podmod")]
-    data_dir: String,
+    /// Path to the configuration file
+    #[clap(short, long, default_value = "/etc/podmod.conf")]
+    config: String,
 
     /// Use CONFIG as configuration
     #[clap(subcommand)]
@@ -77,9 +79,27 @@ enum Command {
     },
 }
 
+fn parse_config(path: &str) -> Value {
+    // Read file into string
+    let file = fs::read_to_string(path)
+        .expect(format!("Error while reading configuration file at {}", path).as_str());
+
+    // Parse string into TOML value
+    let config = file.parse::<Value>()
+        .expect(format!("Error while parsing configuration file at {}", path).as_str());
+
+    config
+}
+
 fn main() {
-    // Let clap parse command line arguments
+    // Parse command line arguments and configuration file
     let args = Args::parse();
+    let config = parse_config(&args.config);
+
+    let data_dir = match config.get("data_dir") {
+        Some(value) => value.as_str().expect("Configuration option 'data_dir' must have a string value"),
+        None => "/usr/share/podmod",
+    };
 
     // Ensure running on Linux
     if env::consts::OS != "linux" {
@@ -93,20 +113,17 @@ fn main() {
 
     // Call appropriate functions from library
     match args.command {
-        Command::Build {
-            idempotent,
-            kernel_version,
-            module,
-            no_prune,
-        } => build(&args.data_dir, idempotent, kernel_version, &module, no_prune),
-        Command::Load {
-            idempotent,
-            module,
-        } => load(idempotent, &module),
-        Command::Modules {} => modules(&args.data_dir),
-        Command::Unload {
-            idempotent,
-            module,
-        } => unload(idempotent, &module),
+        Command::Build { idempotent, kernel_version, module, no_prune } => {
+            build(data_dir, idempotent, kernel_version, &module, no_prune)
+        }
+        Command::Load { idempotent, module } => {
+            load(idempotent, &module)
+        }
+        Command::Modules {} => {
+            modules(data_dir)
+        }
+        Command::Unload { idempotent, module } => {
+            unload(idempotent, &module)
+        }
     };
 }
