@@ -7,8 +7,11 @@ These are the changes that have not been released yet. The release notes have no
 **FEATURE ENCHANCEMENTS:**
 
 - Add `--no-prune` option to `build`.
+
 - Add `--idempotent` option to `build`, `load`, and `unload`.
     - Use in systemd unit.
+
+- Document systemd unit file in `README.md`.
 
 ## v0.3.5 (2022-10-18)
 
@@ -25,8 +28,11 @@ These are the changes that have not been released yet. The release notes have no
 **FEATURE ENCHANCEMENTS:**
 
 - Add systemd unit service to load modules on boot.
+
 - Add `CHANGELOG.md` into RPM package.
+
 - Add note on Podman in Podman to installation instructions.
+
 - Add optional `--test` flag in build instructions.
 
 **BUG FIXES:**
@@ -38,6 +44,7 @@ These are the changes that have not been released yet. The release notes have no
 **WORKFLOW CHANGES:**
 
 - Remove Copr integration webhook from GitHub repository.
+
 - Add GitHub Action to publish package to both [crates.io](https://crates.io) and Copr.
 
 **BUG FIXES:**

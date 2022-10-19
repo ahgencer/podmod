@@ -20,7 +20,7 @@ without modifying any part of the filesystem on the host. It provides a [Rust](h
 sources the build steps of a module from a Containerfile, and then load and unload the module. The process is:
 
 - You call `podmod build` with the name of the kernel module.
-- *podmod* searches `share/modules/` for the module and builds the kernel module as part of a new container image.
+- *podmod* searches `share/modules/` for the module and builds it as part of a new container image.
 - You can then load or unload the module with `podmod load` or `podmod unload`. *podmod* will
   call [insmod(8)](https://manpages.org/insmod/8) or [rmmod(8)](https://manpages.org/rmmod/8) from **inside** the
   container to load or unload the module on the host.
@@ -82,6 +82,13 @@ To build a kernel module, run:
 Afterwards, you can load it with:
 
     $ podmod load -m <MODULE>
+
+*podmod* also ships with a [systemd](https://systemd.io/) service file to load and unload a module at boot time:
+
+    $ systemctl enable podmod@<MODULE>.service
+
+> **Note:** The module must have already been built manually on the system using `podmod build`. Otherwise, the unit
+> will fail.
 
 ## License
 
