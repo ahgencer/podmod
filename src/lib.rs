@@ -13,6 +13,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 use std::process::Command;
@@ -74,6 +75,7 @@ pub fn build(
     kernel_version: Option<String>,
     module: &str,
     no_prune: bool,
+    build_args: &HashMap<&str, &str>,
 ) {
     // Ensure module is supported
     if !module_is_supported(&data_dir, &module) {
@@ -107,11 +109,16 @@ pub fn build(
     println!("Building module {} for kernel version {} ...", module, kernel_version);
 
     // Build new container image
-    let success = Command::new("podman")
-        .args(["build", "-t", &get_image_identifier(&module, &kernel_version)])
+    let mut command = Command::new("podman");
+    command.args(["build", "-t", &get_image_identifier(&module, &kernel_version)])
         .args(["--build-arg", format!("ARCH={}", arch).as_str()])
-        .args(["--build-arg", format!("KERNEL_VERSION={}", kernel_version).as_str()])
-        .arg(format!("{}/modules/{}", data_dir, module))
+        .args(["--build-arg", format!("KERNEL_VERSION={}", kernel_version).as_str()]);
+
+    for (key, value) in build_args {
+        command.args(["--build-arg", format!("{}={}", key, value).as_str()]);
+    }
+
+    let success = command.arg(format!("{}/modules/{}", data_dir, module))
         .status()
         .unwrap()
         .success();

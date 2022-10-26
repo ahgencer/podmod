@@ -16,6 +16,7 @@
 use clap::{Parser, Subcommand};
 use nix::unistd::Uid;
 use podmod::*;
+use std::collections::HashMap;
 use std::env;
 use std::fs;
 use toml::Value;
@@ -115,7 +116,25 @@ fn main() {
     // Call appropriate functions from library
     match args.command {
         Command::Build { idempotent, kernel_version, module, no_prune } => {
-            build(data_dir, idempotent, kernel_version, &module, no_prune)
+            let default = Table::new();
+            let module_config = match config.get(&module) {
+                Some(value) => value.as_table().unwrap(),
+                None => &default,
+            };
+
+            let default = Table::new();
+            let module_build_config = match module_config.get("build") {
+                Some(value) => value.as_table().unwrap(),
+                None => &default,
+            };
+
+            let mut build_args = HashMap::new();
+            for (key, value) in module_build_config {
+                let value = value.as_str().unwrap();
+                build_args.insert(key.as_str(), value);
+            }
+
+            build(data_dir, idempotent, kernel_version, &module, no_prune, &build_args)
         }
         Command::Load { idempotent, module } => {
             let default = Table::new();

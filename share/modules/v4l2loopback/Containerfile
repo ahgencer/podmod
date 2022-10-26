@@ -18,9 +18,9 @@ FROM registry.fedoraproject.org/fedora:latest AS builder
 
 ARG ARCH
 ARG KERNEL_VERSION
-ARG MODULE_SHA256="e0782b8abe8f2235e2734f725dc1533a0729e674c4b7834921ade43b9f04939b"
-ARG MODULE_VERSION="0.12.7"
-ARG UPSTREAM="https://github.com/umlaeute/v4l2loopback/archive/refs/tags/v$MODULE_VERSION.tar.gz"
+ARG MODULE_VERSION
+ARG SHA256
+ARG UPSTREAM
 
 WORKDIR /tmp
 
@@ -43,7 +43,7 @@ RUN mkdir /tmp/koji && \
 
 # Download and extract kernel module from upstream
 RUN curl -LS $UPSTREAM -o v4l2loopback-$MODULE_VERSION.tar.gz && \
-    echo "$MODULE_SHA256 v4l2loopback-$MODULE_VERSION.tar.gz" | sha256sum -c && \
+    echo "$SHA256 v4l2loopback-$MODULE_VERSION.tar.gz" | sha256sum -c && \
     tar xzf v4l2loopback-$MODULE_VERSION.tar.gz && \
     rm v4l2loopback-$MODULE_VERSION.tar.gz
 
@@ -56,7 +56,7 @@ RUN cd v4l2loopback-$MODULE_VERSION && \
 FROM registry.fedoraproject.org/fedora:latest AS staging
 
 ARG KERNEL_VERSION
-ARG MODULE_VERSION="0.12.7"
+ARG MODULE_VERSION
 
 # Install runtime dependencies
 RUN dnf install -y \
