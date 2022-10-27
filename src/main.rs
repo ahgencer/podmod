@@ -54,7 +54,7 @@ enum Command {
         no_prune: bool,
     },
 
-    /// Load the kernel module. The module must already be built for this
+    /// Load the kernel module
     Load {
         /// Quietly exit if module is already loaded
         #[clap(short, long)]

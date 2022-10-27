@@ -3,41 +3,47 @@
 podmod \- Containerized build system for kernel modules on Fedora.
 .SH SYNOPSIS
 .B podmod
-[\fI\,OPTIONS\/\fR]
-<\fI\,COMMAND\/\fR>
+[OPTIONS] <SUBCOMMAND>
 .PP
 .B podmod modules
 .PP
-.B podmod <build|load|unload> -m
-<\fI\,MODULE\/\fR>
+.B podmod build
+-m <MODULE>
+.PP
+.B podmod load
+-m <MODULE>
 .SH DESCRIPTION
 Builds a kernel module from source inside a Podman container.
 Targeted for Fedora Silverblue / Kinoite, but also works for other editions.
 .PP
-\fBNote:\fR This program must be executed with root privileges.
+.B Note:
+This program must be executed with root privileges.
 .SH OPTIONS
 .TP
-\fB\-\-data\-dir\fR \fI\,DATA_DIR\/\fR
-Path to shared architecture-independent files.
+\fB\-c\fR, \fB\-\-config\fR <CONFIG>
+Path to the configuration file [default: \fI\,/etc/podmod.conf\/\fP]
 .TP
 \fB\-h\fR, \fB\-\-help\fR
-Print help information.
+Print help information
 .TP
 \fB\-V\fR, \fB\-\-version\fR
-Print version information.
+Print version information
 .SH SUBCOMMANDS
 .TP
-\fBbuild\fR
-Build the kernel module.
+.B build
+Build the kernel module
 .TP
-\fBload\fR
-Load the kernel module. The module must already be built for this.
+.B help
+Print this message or the help of the given subcommand(s)
 .TP
-\fBmodules\fR
-List supported kernel modules.
+.B load
+Load the kernel module
 .TP
-\fBunload\fR
-Unload the kernel module.
+.B modules
+List supported kernel modules
+.TP
+.B unload
+Unload the kernel module
 .SH AUTHOR
 Written by Alpin H. Gencer <ah@gencer.us>.
 .SH COPYRIGHT
