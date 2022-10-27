@@ -13,16 +13,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use std::collections::HashMap;
+use std::collections;
 use std::fs;
-use std::path::Path;
-use std::process::Command;
-use std::process::Stdio;
+use std::path;
+use std::process;
 use std::str;
 
 fn get_kernel_version() -> String {
     // Get kernel version
-    let output = Command::new("uname")
+    let output = process::Command::new("uname")
         .arg("-r")
         .output()
         .expect("Error while fetching kernel version");
@@ -41,15 +40,15 @@ fn get_image_identifier(module: &str, module_version: &str, kernel_version: &str
 }
 
 fn module_is_loaded(module: &str) -> bool {
-    let lsmod = Command::new("lsmod")
-        .stdout(Stdio::piped())
+    let lsmod = process::Command::new("lsmod")
+        .stdout(process::Stdio::piped())
         .spawn()
         .unwrap();
 
-    let mut grep = Command::new("grep")
+    let mut grep = process::Command::new("grep")
         .arg(&module)
-        .stdin(Stdio::from(lsmod.stdout.unwrap()))
-        .stdout(Stdio::null())
+        .stdin(process::Stdio::from(lsmod.stdout.unwrap()))
+        .stdout(process::Stdio::null())
         .spawn()
         .unwrap();
 
@@ -58,11 +57,11 @@ fn module_is_loaded(module: &str) -> bool {
 
 fn module_is_supported(data_dir: &str, module: &str) -> bool {
     let path = format!("{}/modules/{}", data_dir, module);
-    Path::new(&path).is_dir()
+    path::Path::new(&path).is_dir()
 }
 
 fn image_exists(identifier: &str) -> bool {
-    Command::new("podman")
+    process::Command::new("podman")
         .args(["image", "exists", identifier])
         .status()
         .unwrap()
@@ -76,7 +75,7 @@ pub fn build(
     module: &str,
     module_version: &str,
     no_prune: bool,
-    build_args: &HashMap<&str, &str>,
+    build_args: &collections::HashMap<&str, &str>,
 ) {
     // Ensure module is supported
     if !module_is_supported(&data_dir, &module) {
@@ -90,7 +89,7 @@ pub fn build(
     };
 
     // Get CPU architecture
-    let arch = Command::new("uname")
+    let arch = process::Command::new("uname")
         .arg("-p")
         .output()
         .expect("Error while fetching CPU architecture");
@@ -113,7 +112,7 @@ pub fn build(
     println!("Building module {} for kernel version {} ...", module, kernel_version);
 
     // Build new container image
-    let mut command = Command::new("podman");
+    let mut command = process::Command::new("podman");
     command.args(["build", "-t", &image_name])
         .args(["--build-arg", format!("ARCH={}", arch).as_str()])
         .args(["--build-arg", format!("KERNEL_VERSION={}", kernel_version).as_str()])
@@ -132,7 +131,7 @@ pub fn build(
 
     // Prune intermediary images
     if !no_prune {
-        let success = Command::new("podman")
+        let success = process::Command::new("podman")
             .args(["system", "prune", "-f"])
             .status()
             .unwrap()
@@ -163,7 +162,7 @@ pub fn load(idempotent: bool, module: &str, module_version: &str, kernel_args: &
     println!("Loading module {} ...", module);
 
     // Run insmod inside new container
-    let success = Command::new("podman")
+    let success = process::Command::new("podman")
         .args(["run", "--rm", "--privileged", &image_name])
         .args(["insmod", format!("/usr/lib/modules/{}/extra/{}.ko", kernel_version, module).as_str()])
         .args(kernel_args)
@@ -206,7 +205,7 @@ pub fn unload(idempotent: bool, module: &str) {
     println!("Unloading module {} ...", module);
 
     // Run rmmod (doesn't need to be inside a container)
-    let success = Command::new("rmmod")
+    let success = process::Command::new("rmmod")
         .arg(format!("{}", module))
         .status()
         .unwrap()

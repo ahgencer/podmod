@@ -14,13 +14,12 @@
  */
 
 use clap::{Parser, Subcommand};
-use nix::unistd::Uid;
+use nix::unistd;
 use podmod::*;
-use std::collections::HashMap;
+use std::collections;
 use std::env;
 use std::fs;
-use toml::Value;
-use toml::value::Table;
+use toml;
 
 #[derive(Parser, Debug)]
 #[clap(version, about, long_about = None)]
@@ -81,13 +80,13 @@ enum Command {
     },
 }
 
-fn parse_config(path: &str) -> Value {
+fn parse_config(path: &str) -> toml::Value {
     // Read file into string
     let file = fs::read_to_string(path)
         .expect(format!("Error while reading configuration file at {}", path).as_str());
 
     // Parse string into TOML value
-    let config = file.parse::<Value>()
+    let config = file.parse::<toml::Value>()
         .expect(format!("Error while parsing configuration file at {}", path).as_str());
 
     config
@@ -109,14 +108,14 @@ fn main() {
     }
 
     // Ensure program is run as root
-    if !Uid::effective().is_root() {
+    if !unistd::Uid::effective().is_root() {
         panic!("Must be run as root");
     }
 
     // Call appropriate functions from library
     match args.command {
         Command::Build { idempotent, kernel_version, module, no_prune } => {
-            let default = Table::new();
+            let default = toml::value::Table::new();
             let module_config = match config.get(&module) {
                 Some(value) => value.as_table().unwrap(),
                 None => &default,
@@ -127,13 +126,13 @@ fn main() {
                 None => panic!("Must specify module version for {}", module),
             };
 
-            let default = Table::new();
+            let default = toml::value::Table::new();
             let module_build_config = match module_config.get("build") {
                 Some(value) => value.as_table().unwrap(),
                 None => &default,
             };
 
-            let mut build_args = HashMap::new();
+            let mut build_args = collections::HashMap::new();
             for (key, value) in module_build_config {
                 let value = value.as_str().unwrap();
                 build_args.insert(key.as_str(), value);
@@ -142,7 +141,7 @@ fn main() {
             build(data_dir, idempotent, kernel_version, &module, &module_version, no_prune, &build_args)
         }
         Command::Load { idempotent, module } => {
-            let default = Table::new();
+            let default = toml::value::Table::new();
             let module_config = match config.get(&module) {
                 Some(value) => value.as_table().unwrap(),
                 None => &default,
