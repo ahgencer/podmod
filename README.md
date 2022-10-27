@@ -20,6 +20,7 @@ without modifying any part of the filesystem on the host. It provides a [Rust](h
 sources the build steps of a module from a Containerfile, and then load and unload the module. The process is:
 
 - You call `podmod build` with the name of the kernel module.
+- *podmod* reads the configuration file (default: `/etc/podmod.conf`) for build and kernel arguments.
 - *podmod* searches `share/modules/` for the module and builds it as part of a new container image.
 - You can then load or unload the module with `podmod load` or `podmod unload`. *podmod* will
   call [insmod(8)](https://manpages.org/insmod/8) or [rmmod(8)](https://manpages.org/rmmod/8) from **inside** the
@@ -45,7 +46,7 @@ Podman on the [Project Atomic](https://projectatomic.io/) website (which is now 
 the usual restrictions for kernel modules still apply. Mainly, the module needs to be built for a **specific** kernel
 version, and must be rebuilt with every update.
 
-### Will this work on my favorite edition of Fedora?
+### Will this work on other editions of Fedora?
 
 This has only been tested on Silverblue / Kinoite 36, but **will theoretically work** on other editions as well,
 including Workstation, Server, and CoreOS. Think of it as an alternative to [dkms(8)](https://manpages.org/dkms/8), for
@@ -65,9 +66,7 @@ You are welcome to adapt *podmod* to use different Containerfiles targeting othe
 
 Installation instructions, as well as instructions for building *podmod* from source, can be found [here](INSTALL.md).
 
-You may also want to read through the [changelog](CHANGELOG.md).
-
-### Usage
+### Basic Usage
 
 To get help on using *podmod*, run:
 
