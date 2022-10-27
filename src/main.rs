@@ -98,11 +98,6 @@ fn main() {
     let args = Args::parse();
     let config = parse_config(&args.config);
 
-    let data_dir = match config.get("data_dir") {
-        Some(value) => value.as_str().expect("Configuration option 'data_dir' must have a string value"),
-        None => "/usr/share/podmod",
-    };
-
     // Ensure running on Linux
     if env::consts::OS != "linux" {
         panic!("Must run on Linux");
