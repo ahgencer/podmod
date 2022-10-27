@@ -9,7 +9,7 @@ categories = ["command-line-utilities"]
 license = "GPL-2.0-or-later"
 authors = ["Alpin H. Gencer <ah@gencer.us>"]
 
-version = "0.3.5"
+version = "0.3.6"
 edition = "2021"
 
 repository = "https://github.com/ahgencer/podmod"
