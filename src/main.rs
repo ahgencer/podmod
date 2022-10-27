@@ -122,6 +122,11 @@ fn main() {
                 None => &default,
             };
 
+            let module_version = match module_config.get("version") {
+                Some(value) => value.as_str().unwrap(),
+                None => panic!("Must specify module version for {}", module),
+            };
+
             let default = Table::new();
             let module_build_config = match module_config.get("build") {
                 Some(value) => value.as_table().unwrap(),
@@ -134,13 +139,18 @@ fn main() {
                 build_args.insert(key.as_str(), value);
             }
 
-            build(data_dir, idempotent, kernel_version, &module, no_prune, &build_args)
+            build(data_dir, idempotent, kernel_version, &module, &module_version, no_prune, &build_args)
         }
         Command::Load { idempotent, module } => {
             let default = Table::new();
             let module_config = match config.get(&module) {
                 Some(value) => value.as_table().unwrap(),
                 None => &default,
+            };
+
+            let module_version = match module_config.get("version") {
+                Some(value) => value.as_str().unwrap(),
+                None => panic!("Must specify module version for {}", module),
             };
 
             let default = Vec::new();
@@ -151,7 +161,7 @@ fn main() {
 
             let kernel_args: Vec<_> = kernel_args.iter().map(|v| v.as_str().unwrap()).collect();
 
-            load(idempotent, &module, &kernel_args)
+            load(idempotent, &module, &module_version, &kernel_args)
         }
         Command::Modules {} => {
             modules(data_dir)

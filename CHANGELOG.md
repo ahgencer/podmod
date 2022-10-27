@@ -9,6 +9,7 @@ These are the changes that have not been released yet. The release notes have no
 - Re-add configuration file `podmod.conf`.
     - Specify kernel module parameters in configuration file.
     - Specify container image build parameters in configuration file.
+    - Tag images with module version from configuration file.
 
 - Add `--no-prune` option to `build`.
 
