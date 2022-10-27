@@ -18,7 +18,7 @@ use nix::unistd::Uid;
 use podmod::*;
 use std::env;
 
-#[derive(Parser)]
+#[derive(Parser, Debug)]
 #[clap(version, about, long_about = None)]
 struct Args {
     /// Path to shared architecture-independent files
@@ -30,7 +30,7 @@ struct Args {
     command: Command,
 }
 
-#[derive(Subcommand)]
+#[derive(Subcommand, Debug)]
 enum Command {
     /// Build the kernel module
     Build {

@@ -11,6 +11,8 @@ These are the changes that have not been released yet. The release notes have no
 - Add `--idempotent` option to `build`, `load`, and `unload`.
     - Use in systemd unit.
 
+- Add `#[derive(Debug)]` to all structs in `main.rs`.
+
 - Document systemd unit file in `README.md`.
 
 ## v0.3.5 (2022-10-18)
