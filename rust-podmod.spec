@@ -84,7 +84,7 @@ mkdir -p %{buildroot}%{_mandir}/man8/
 mkdir -p %{buildroot}%{_unitdir}
 cp -pr share/modules/ %{buildroot}%{_datadir}/podmod/
 install -p -m0644 docs/*.8 %{buildroot}%{_mandir}/man8/
-install -p -m0644 extra/podmod.conf %{buildroot}%{_sysconfdir}
+install -p -m0644 extra/podmod.conf.dist %{buildroot}%{_sysconfdir}
 install -p -m0644 extra/podmod@.service %{buildroot}%{_unitdir}
 
 %if %{with check}
