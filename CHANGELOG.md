@@ -1,8 +1,6 @@
 # Changelog
 
-## Unreleased
-
-These are the changes that have not been released yet. The release notes have not yet been written.
+## v0.3.6 (2022-10-27)
 
 **FEATURE ENCHANCEMENTS:**
 
