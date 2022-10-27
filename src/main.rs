@@ -98,6 +98,11 @@ fn main() {
     let args = Args::parse();
     let config = parse_config(&args.config);
 
+    let data_dir = config.get("data_dir")
+        .expect("Missing configuration option 'data_dir'")
+        .as_str()
+        .expect("Configuration option 'data_dir' must have a string value");
+
     // Ensure running on Linux
     if env::consts::OS != "linux" {
         panic!("Must run on Linux");
