@@ -1,0 +1,40 @@
+.TH PODMOD.CONF 5 "October 2022" podmod.conf "Podmod"
+.SH NAME
+podmod \- Configuration file for Podmod.
+.SH DESCRIPTION
+This is the configuration file for podmod(1).
+None of the options have any default values and, therefore, are all required.
+.PP
+The file is formatted using the TOML format.
+Trailing whitespace, comments starting with ‘#’, and blank lines are ignored.
+.PP
+The main section contains configuration options for the podmod command line utility itself.
+Each supported module has its own table and sub-table, which contain information on the
+module version, kernel parameters, build arguments, etc.
+.PP
+All keys contained in the \fB[<MODULE>.build]\fR sub-table must have string values, and
+will be passed to podman-build(1) as build arguments.
+\fBARCH\fR, \fBKERNEL_VERSION\fR, and \fBMODULE_VERSION\fR are passed by default and do not
+need to be specified in the configuration file.
+.PP
+.SH OPTIONS
+.TP
+\fBdata_dir\fR string
+Specifies the path to the data directory that contains the architecture-independent data,
+such as the Containerfile tree.
+.SH "MODULE OPTIONS"
+.TP
+\fBversion\fR string
+The upstream version string of the module.
+.TP
+\fBkernel_args\fR array of strings
+The kernel parameters that will be passed to insmod(8) when loading the module.
+Each string is contains a parameter formatted as "key=value".
+.SH FILES
+/etc/podmod.conf
+.SH AUTHOR
+Written by Alpin H. Gencer <ah@gencer.us>.
+.SH "SEE ALSO"
+podmod(8)
+.PP
+For more information on the TOML format, see <https://toml.io/en/>.

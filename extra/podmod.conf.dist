@@ -2,7 +2,7 @@
 # /etc/podmod.conf
 #
 # Configuration file for Podmod.
-# Formatted using TOML.
+# Formatted using TOML. See podmod.conf(5) for more details.
 #
 # You can change configuration files with the '-c' option.
 #
