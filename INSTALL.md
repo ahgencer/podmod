@@ -13,9 +13,12 @@ to `/etc/yum.repos.d/`:
 
     $ VERSION_ID=<VERSION>
     $ wget -P /etc/yum.repos.d/ "https://copr.fedorainfracloud.org/coprs/ahgencer/podmod/repo/fedora-$VERSION_ID/ahgencer-podmod-fedora-$VERSION_ID.repo"
-    $ rpm-ostree install --apply-live podmod
 
 Where `VERSION` is your Fedora version, as defined in `/etc/os-release` (eg. `36` or `rawhide`).
+
+You can then layer the package on top of your system image:
+
+    $ rpm-ostree install [--apply-live] podmod
 
 > **Note:** *podmod* will not work when it is installed inside a container, as the Podman commands will fail.
 
@@ -31,7 +34,7 @@ a [Toolbx](https://docs.fedoraproject.org/en-US/fedora-silverblue/toolbox/) cont
         rust-nix+default-devel \
         rust-toml+default-devel
 
-Then build the latest stable version of the package with:
+Then build the package with:
 
     # tito build -o dist/ [--test] --rpm
 
