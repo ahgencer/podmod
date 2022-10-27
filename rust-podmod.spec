@@ -36,6 +36,7 @@ Summary:        %{summary}
 %{_sbindir}/podmod
 %{_datadir}/podmod/
 %{_mandir}/
+%{_sysconfdir}/podmod.conf
 %{_unitdir}/podmod@.service
 
 %package        devel
@@ -83,6 +84,7 @@ mkdir -p %{buildroot}%{_mandir}/man8/
 mkdir -p %{buildroot}%{_unitdir}
 cp -pr share/modules/ %{buildroot}%{_datadir}/podmod/
 install -p -m0644 docs/*.8 %{buildroot}%{_mandir}/man8/
+install -p -m0644 extra/podmod.conf %{buildroot}%{_sysconfdir}
 install -p -m0644 extra/podmod@.service %{buildroot}%{_unitdir}
 
 %if %{with check}
@@ -91,6 +93,9 @@ install -p -m0644 extra/podmod@.service %{buildroot}%{_unitdir}
 %endif
 
 %changelog
+* Sun Oct 27 2022 Alpin H. Gencer <ah@gencer.us> 0.3.6-1
+- Configuration file re-introduced in version 0.3.6
+
 * Sun Oct 16 2022 Alpin H. Gencer <ah@gencer.us> 0.3.1-1
 - Configuration file removed in version 0.3.1
 
