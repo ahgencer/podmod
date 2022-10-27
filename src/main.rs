@@ -16,14 +16,18 @@
 use clap::{Parser, Subcommand};
 use nix::unistd::Uid;
 use podmod::*;
+use std::collections::HashMap;
 use std::env;
+use std::fs;
+use toml::Value;
+use toml::value::Table;
 
 #[derive(Parser, Debug)]
 #[clap(version, about, long_about = None)]
 struct Args {
-    /// Path to shared architecture-independent files
-    #[clap(long, default_value = "/usr/share/podmod")]
-    data_dir: String,
+    /// Path to the configuration file
+    #[clap(short, long, default_value = "/etc/podmod.conf")]
+    config: String,
 
     /// Use CONFIG as configuration
     #[clap(subcommand)]
@@ -77,9 +81,22 @@ enum Command {
     },
 }
 
+fn parse_config(path: &str) -> Value {
+    // Read file into string
+    let file = fs::read_to_string(path)
+        .expect(format!("Error while reading configuration file at {}", path).as_str());
+
+    // Parse string into TOML value
+    let config = file.parse::<Value>()
+        .expect(format!("Error while parsing configuration file at {}", path).as_str());
+
+    config
+}
+
 fn main() {
-    // Let clap parse command line arguments
+    // Parse command line arguments and configuration file
     let args = Args::parse();
+    let config = parse_config(&args.config);
 
     // Ensure running on Linux
     if env::consts::OS != "linux" {
@@ -93,20 +110,59 @@ fn main() {
 
     // Call appropriate functions from library
     match args.command {
-        Command::Build {
-            idempotent,
-            kernel_version,
-            module,
-            no_prune,
-        } => build(&args.data_dir, idempotent, kernel_version, &module, no_prune),
-        Command::Load {
-            idempotent,
-            module,
-        } => load(idempotent, &module),
-        Command::Modules {} => modules(&args.data_dir),
-        Command::Unload {
-            idempotent,
-            module,
-        } => unload(idempotent, &module),
+        Command::Build { idempotent, kernel_version, module, no_prune } => {
+            let default = Table::new();
+            let module_config = match config.get(&module) {
+                Some(value) => value.as_table().unwrap(),
+                None => &default,
+            };
+
+            let module_version = match module_config.get("version") {
+                Some(value) => value.as_str().unwrap(),
+                None => panic!("Must specify module version for {}", module),
+            };
+
+            let default = Table::new();
+            let module_build_config = match module_config.get("build") {
+                Some(value) => value.as_table().unwrap(),
+                None => &default,
+            };
+
+            let mut build_args = HashMap::new();
+            for (key, value) in module_build_config {
+                let value = value.as_str().unwrap();
+                build_args.insert(key.as_str(), value);
+            }
+
+            build(data_dir, idempotent, kernel_version, &module, &module_version, no_prune, &build_args)
+        }
+        Command::Load { idempotent, module } => {
+            let default = Table::new();
+            let module_config = match config.get(&module) {
+                Some(value) => value.as_table().unwrap(),
+                None => &default,
+            };
+
+            let module_version = match module_config.get("version") {
+                Some(value) => value.as_str().unwrap(),
+                None => panic!("Must specify module version for {}", module),
+            };
+
+            let default = Vec::new();
+            let kernel_args = match module_config.get("kernel_args") {
+                Some(value) => value.as_array().expect("Configuration option 'kernel_args' must have an array value"),
+                None => &default,
+            };
+
+            let kernel_args: Vec<_> = kernel_args.iter().map(|v| v.as_str().unwrap()).collect();
+
+            load(idempotent, &module, &module_version, &kernel_args)
+        }
+        Command::Modules {} => {
+            modules(data_dir)
+        }
+        Command::Unload { idempotent, module } => {
+            unload(idempotent, &module)
+        }
     };
 }

@@ -28,7 +28,8 @@ a [Toolbx](https://docs.fedoraproject.org/en-US/fedora-silverblue/toolbox/) cont
     $ dnf install tito rust-packaging
     $ dnf install \
         rust-clap+default-devel rust-clap+derive-devel \
-        rust-nix+default-devel
+        rust-nix+default-devel \
+        rust-toml+default-devel
 
 Then build the latest stable version of the package with:
 

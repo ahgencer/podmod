@@ -10,3 +10,4 @@ target/
 
 # Project
 dist/
+extra/podmod.conf

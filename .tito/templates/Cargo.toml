@@ -24,3 +24,4 @@ exclude = [
 [dependencies]
 clap = { version = "3.2.20", features = ["derive"] }
 nix = "0.24.2"
+toml = "0.5.9"

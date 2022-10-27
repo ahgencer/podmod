@@ -13,6 +13,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+use std::collections::HashMap;
 use std::fs;
 use std::path::Path;
 use std::process::Command;
@@ -35,8 +36,8 @@ fn get_kernel_version() -> String {
     String::from(output)
 }
 
-fn get_image_identifier(module: &str, kernel_version: &str) -> String {
-    format!("{}-{}:{}", env!("CARGO_PKG_NAME"), module, kernel_version)
+fn get_image_identifier(module: &str, module_version: &str, kernel_version: &str) -> String {
+    format!("{}-{}:{}-{}", env!("CARGO_PKG_NAME"), module, module_version, kernel_version)
 }
 
 fn module_is_loaded(module: &str) -> bool {
@@ -73,7 +74,9 @@ pub fn build(
     idempotent: bool,
     kernel_version: Option<String>,
     module: &str,
+    module_version: &str,
     no_prune: bool,
+    build_args: &HashMap<&str, &str>,
 ) {
     // Ensure module is supported
     if !module_is_supported(&data_dir, &module) {
@@ -95,8 +98,11 @@ pub fn build(
     let arch = str::from_utf8(&arch.stdout).unwrap();
     let arch = str::trim(arch);
 
+    // Get image identifier
+    let image_name = get_image_identifier(&module, &module_version, &kernel_version);
+
     // Check for existing image
-    if image_exists(&get_image_identifier(&module, &kernel_version)) {
+    if image_exists(&image_name) {
         if idempotent {
             return;
         }
@@ -107,11 +113,17 @@ pub fn build(
     println!("Building module {} for kernel version {} ...", module, kernel_version);
 
     // Build new container image
-    let success = Command::new("podman")
-        .args(["build", "-t", &get_image_identifier(&module, &kernel_version)])
+    let mut command = Command::new("podman");
+    command.args(["build", "-t", &image_name])
         .args(["--build-arg", format!("ARCH={}", arch).as_str()])
         .args(["--build-arg", format!("KERNEL_VERSION={}", kernel_version).as_str()])
-        .arg(format!("{}/modules/{}", data_dir, module))
+        .args(["--build-arg", format!("MODULE_VERSION={}", module_version).as_str()]);
+
+    for (key, value) in build_args {
+        command.args(["--build-arg", format!("{}={}", key, value).as_str()]);
+    }
+
+    let success = command.arg(format!("{}/modules/{}", data_dir, module))
         .status()
         .unwrap()
         .success();
@@ -130,11 +142,12 @@ pub fn build(
     }
 }
 
-pub fn load(idempotent: bool, module: &str) {
+pub fn load(idempotent: bool, module: &str, module_version: &str, kernel_args: &Vec<&str>) {
     let kernel_version = get_kernel_version();
+    let image_name = get_image_identifier(&module, &module_version, &kernel_version);
 
     // Ensure module is built
-    if !image_exists(&get_image_identifier(&module, &kernel_version)) {
+    if !image_exists(&image_name) {
         panic!("Module {} is not built", module);
     }
 
@@ -151,9 +164,9 @@ pub fn load(idempotent: bool, module: &str) {
 
     // Run insmod inside new container
     let success = Command::new("podman")
-        .args(["run", "--rm", "--privileged"])
-        .arg(get_image_identifier(&module, &kernel_version))
+        .args(["run", "--rm", "--privileged", &image_name])
         .args(["insmod", format!("/usr/lib/modules/{}/extra/{}.ko", kernel_version, module).as_str()])
+        .args(kernel_args)
         .status()
         .unwrap()
         .success();
