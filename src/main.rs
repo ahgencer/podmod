@@ -13,7 +13,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-use clap::{Parser, Subcommand};
+use clap::Parser;
+use clap::Subcommand;
 use nix::unistd;
 use podmod::*;
 use std::collections;
@@ -40,10 +41,6 @@ enum Command {
         /// Quietly exit if module is already built
         #[clap(short, long)]
         idempotent: bool,
-
-        /// Target the kernel version KERNEL_VERSION. [default: the current kernel version]
-        #[clap(long)]
-        kernel_version: Option<String>,
 
         /// Work on the module MODULE
         #[clap(short, long)]
@@ -81,11 +78,11 @@ enum Command {
 }
 
 fn parse_config(path: &str) -> toml::Value {
-    // Read file into string
+    // Read file into String
     let file = fs::read_to_string(path)
         .expect(format!("Error while reading configuration file at {}", path).as_str());
 
-    // Parse string into TOML value
+    // Parse file using the 'toml' crate
     let config = file.parse::<toml::Value>()
         .expect(format!("Error while parsing configuration file at {}", path).as_str());
 
@@ -97,11 +94,6 @@ fn main() {
     let args = Args::parse();
     let config = parse_config(&args.config);
 
-    let data_dir = config.get("data_dir")
-        .expect("Missing configuration option 'data_dir'")
-        .as_str()
-        .expect("Configuration option 'data_dir' must have a string value");
-
     // Ensure running on Linux
     if env::consts::OS != "linux" {
         panic!("Must run on Linux");
@@ -112,60 +104,96 @@ fn main() {
         panic!("Must be run as root");
     }
 
-    // Call appropriate functions from library
-    match args.command {
-        Command::Build { idempotent, kernel_version, module, no_prune } => {
-            let default = toml::value::Table::new();
-            let module_config = match config.get(&module) {
-                Some(value) => value.as_table().unwrap(),
-                None => &default,
-            };
+    // We'll need some of the configuration options to call
+    // the subcommand functions in the library crate later
+    let data_dir = config.get("data_dir")
+        .expect("Missing configuration option 'data_dir'")
+        .as_str()
+        .expect("Configuration option 'data_dir' must have a string value");
 
-            let module_version = match module_config.get("version") {
-                Some(value) => value.as_str().unwrap(),
-                None => panic!("Must specify module version for {}", module),
-            };
+    let module_config = match args.command {
+        Command::Build { ref module, .. } | Command::Load { ref module, .. } | Command::Unload { ref module, .. } => {
+            let value = config.get(&module)
+                .expect(format!("Missing configuration for module {}", module).as_str());
 
-            let default = toml::value::Table::new();
-            let module_build_config = match module_config.get("build") {
-                Some(value) => value.as_table().unwrap(),
-                None => &default,
-            };
+            let value = value.as_table()
+                .expect(format!("Configuration for module {} must be a table", module).as_str());
 
-            let mut build_args = collections::HashMap::new();
-            for (key, value) in module_build_config {
-                let value = value.as_str().unwrap();
-                build_args.insert(key.as_str(), value);
+            Some((module, value))
+        }
+        Command::Modules { .. } => {
+            None
+        }
+    };
+
+    let module_version = match module_config {
+        Some((module, config)) => {
+            let value = config.get("version")
+                .expect(format!("No version specified for module {}", module).as_str());
+
+            let value = value.as_str()
+                .expect(format!("Version identifier for module {} must have a string value", module).as_str());
+
+            Some((module, value))
+        }
+        None => None,
+    };
+
+    let module_kernel_args = match module_config {
+        Some((module, config)) => {
+            let value = config.get("kernel_args")
+                .expect(format!("No kernel parameters specified for module {}", module).as_str());
+
+            let value = value.as_array()
+                .expect(format!("Kernel parameters for module {} must be an array", module).as_str());
+
+            let value: Vec<_> = value.iter().map(|v| v.as_str().unwrap()).collect();
+
+            Some((module, value))
+        }
+        None => None,
+    };
+
+    let module_build_args = match module_config {
+        Some((module, config)) => {
+            let build_config = config.get("build")
+                .expect(format!("Missing build configuration for module {}", module).as_str());
+
+            let build_config = build_config.as_table()
+                .expect(format!("Build configuration for module {} must be a table", module).as_str());
+
+            let mut args = collections::HashMap::new();
+
+            for (key, value) in build_config {
+                let value = value.as_str()
+                    .expect(format!("Build parameter for module {} must have a string value", module).as_str());
+
+                args.insert(key.as_str(), value);
             }
 
-            build(data_dir, idempotent, kernel_version, &module, &module_version, no_prune, &build_args)
+            Some((module, args))
         }
-        Command::Load { idempotent, module } => {
-            let default = toml::value::Table::new();
-            let module_config = match config.get(&module) {
-                Some(value) => value.as_table().unwrap(),
-                None => &default,
-            };
+        None => None,
+    };
 
-            let module_version = match module_config.get("version") {
-                Some(value) => value.as_str().unwrap(),
-                None => panic!("Must specify module version for {}", module),
-            };
+    // Call appropriate functions from library
+    match args.command {
+        Command::Build { idempotent, ref module, no_prune } => {
+            let (.., module_version) = module_version.unwrap();
+            let (.., build_args) = module_build_args.unwrap();
 
-            let default = Vec::new();
-            let kernel_args = match module_config.get("kernel_args") {
-                Some(value) => value.as_array().expect("Configuration option 'kernel_args' must have an array value"),
-                None => &default,
-            };
-
-            let kernel_args: Vec<_> = kernel_args.iter().map(|v| v.as_str().unwrap()).collect();
+            build(data_dir, idempotent, &module, &module_version, no_prune, &build_args)
+        }
+        Command::Load { idempotent, ref module } => {
+            let (.., module_version) = module_version.unwrap();
+            let (.., kernel_args) = module_kernel_args.unwrap();
 
             load(idempotent, &module, &module_version, &kernel_args)
         }
         Command::Modules {} => {
             modules(data_dir)
         }
-        Command::Unload { idempotent, module } => {
+        Command::Unload { idempotent, ref module } => {
             unload(idempotent, &module)
         }
     };

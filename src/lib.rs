@@ -19,85 +19,94 @@ use std::path;
 use std::process;
 use std::str;
 
+fn get_architecture() -> String {
+    // Call 'uname -p' to fetch the architecture
+    let arch = process::Command::new("uname")
+        .arg("-p")
+        .output()
+        .expect("Error while fetching CPU architecture");
+
+    // Cleanup and parse stdout into str
+    let arch = str::from_utf8(&arch.stdout).unwrap();
+    let arch = str::trim(arch);
+
+    // We need to return a String since we don't
+    // know the size at compile-time
+    String::from(arch)
+}
+
 fn get_kernel_version() -> String {
-    // Get kernel version
+    // Call 'uname -r' to fetch the kernel release
     let output = process::Command::new("uname")
         .arg("-r")
         .output()
         .expect("Error while fetching kernel version");
 
-    // Parse stdout into str
-    let output = str::from_utf8(&output.stdout[..]).unwrap();
-
-    // Trim whitespace and newlines
+    // Cleanup and parse stdout into str
+    let output = str::from_utf8(&output.stdout).unwrap();
     let output = str::trim(output);
 
+    // We need to return a String since we don't
+    // know the size at compile-time
     String::from(output)
 }
 
-fn get_image_identifier(module: &str, module_version: &str, kernel_version: &str) -> String {
-    format!("{}-{}:{}-{}", env!("CARGO_PKG_NAME"), module, module_version, kernel_version)
-}
-
-fn module_is_loaded(module: &str) -> bool {
+fn is_module_loaded(module: &str) -> bool {
+    // Call 'lsmod | grep $module' to check for loaded module
     let lsmod = process::Command::new("lsmod")
         .stdout(process::Stdio::piped())
         .spawn()
-        .unwrap();
+        .expect("Error while fetching loaded kernel modules");
 
     let mut grep = process::Command::new("grep")
         .arg(&module)
         .stdin(process::Stdio::from(lsmod.stdout.unwrap()))
         .stdout(process::Stdio::null())
         .spawn()
-        .unwrap();
+        .expect("Error while searching for loaded kernel module");
 
+    // 'grep' succeeds only if string is found
     grep.wait().unwrap().success()
 }
 
-fn module_is_supported(data_dir: &str, module: &str) -> bool {
+fn is_module_supported(data_dir: &str, module: &str) -> bool {
+    // If the module is supported, it must have a subdirectory under 'data_dir'
     let path = format!("{}/modules/{}", data_dir, module);
     path::Path::new(&path).is_dir()
 }
 
+fn get_image_identifier(module: &str, module_version: &str, kernel_version: &str) -> String {
+    format!("{}-{}:{}-{}", env!("CARGO_PKG_NAME"), module, module_version, kernel_version)
+}
+
 fn image_exists(identifier: &str) -> bool {
+    // Call 'podman exists' to check for existing image
+    // The command only succeeds if image is found
     process::Command::new("podman")
         .args(["image", "exists", identifier])
         .status()
-        .unwrap()
+        .expect("Error while checking for pre-existing image")
         .success()
 }
 
 pub fn build(
     data_dir: &str,
     idempotent: bool,
-    kernel_version: Option<String>,
     module: &str,
     module_version: &str,
     no_prune: bool,
     build_args: &collections::HashMap<&str, &str>,
 ) {
     // Ensure module is supported
-    if !module_is_supported(&data_dir, &module) {
+    if !is_module_supported(&data_dir, &module) {
         panic!("Module {} is not supported", module);
     }
 
-    // Get kernel version
-    let kernel_version = match kernel_version {
-        Some(version) => version,
-        None => get_kernel_version(),
-    };
+    // We'll need some information about the system when
+    // compiling the kernel module
+    let kernel_version = get_kernel_version();
+    let arch = get_architecture();
 
-    // Get CPU architecture
-    let arch = process::Command::new("uname")
-        .arg("-p")
-        .output()
-        .expect("Error while fetching CPU architecture");
-
-    let arch = str::from_utf8(&arch.stdout).unwrap();
-    let arch = str::trim(arch);
-
-    // Get image identifier
     let image_name = get_image_identifier(&module, &module_version, &kernel_version);
 
     // Check for existing image
@@ -111,37 +120,37 @@ pub fn build(
 
     println!("Building module {} for kernel version {} ...", module, kernel_version);
 
-    // Build new container image
+    // Call 'podman build' to build the new image
+    // We already now the target architecture and kernel version
     let mut command = process::Command::new("podman");
+
     command.args(["build", "-t", &image_name])
         .args(["--build-arg", format!("ARCH={}", arch).as_str()])
         .args(["--build-arg", format!("KERNEL_VERSION={}", kernel_version).as_str()])
         .args(["--build-arg", format!("MODULE_VERSION={}", module_version).as_str()]);
 
+    // Add additional build parameter passed to the function
     for (key, value) in build_args {
         command.args(["--build-arg", format!("{}={}", key, value).as_str()]);
     }
 
-    let success = command.arg(format!("{}/modules/{}", data_dir, module))
+    command.arg(format!("{}/modules/{}", data_dir, module))
         .status()
-        .unwrap()
-        .success();
+        .expect("Error while building the kernel module");
 
-    assert!(success, "Error while running build kernel module");
-
-    // Prune intermediary images
+    // By default, we'll prune any intermediary images that the build generates
+    // The user probably isn't building the same image multiple times,
+    // so keeping the cached build stages isn't very useful
     if !no_prune {
-        let success = process::Command::new("podman")
+        process::Command::new("podman")
             .args(["system", "prune", "-f"])
             .status()
-            .unwrap()
-            .success();
-
-        assert!(success, "Error while pruning old images");
+            .expect("Error while pruning intermediary images");
     }
 }
 
 pub fn load(idempotent: bool, module: &str, module_version: &str, kernel_args: &Vec<&str>) {
+    // podmod's container images are always named predictably
     let kernel_version = get_kernel_version();
     let image_name = get_image_identifier(&module, &module_version, &kernel_version);
 
@@ -150,8 +159,8 @@ pub fn load(idempotent: bool, module: &str, module_version: &str, kernel_args: &
         panic!("Module {} is not built", module);
     }
 
-    // Ensure module is not loaded
-    if module_is_loaded(&module) {
+    // Check if module is already loaded
+    if is_module_loaded(&module) {
         if idempotent {
             return;
         }
@@ -161,40 +170,35 @@ pub fn load(idempotent: bool, module: &str, module_version: &str, kernel_args: &
 
     println!("Loading module {} ...", module);
 
-    // Run insmod inside new container
-    let success = process::Command::new("podman")
+    // Call 'insmod' inside a new container
+    // Add additional kernel parameters passed to the function
+    process::Command::new("podman")
         .args(["run", "--rm", "--privileged", &image_name])
         .args(["insmod", format!("/usr/lib/modules/{}/extra/{}.ko", kernel_version, module).as_str()])
         .args(kernel_args)
         .status()
-        .unwrap()
-        .success();
-
-    assert!(success, "Error while loading kernel module");
+        .expect("Error while loading the kernel module");
 }
 
 pub fn modules(data_dir: &str) {
     println!("The following kernel modules are supported:");
 
-    // Read file paths in modules data directory
+    // Each supported module has a subdirectory in 'data_dir'
     let modules = fs::read_dir(format!("{}/modules", data_dir))
         .expect("Error while reading data directory");
 
     for module in modules {
-        // Get file name
+        // Print the path's basename
         let module = module.unwrap().path();
         let module = module.file_name();
-
-        // Get basename
         let module = module.unwrap().to_str().unwrap();
-
         println!("{}", module);
     }
 }
 
 pub fn unload(idempotent: bool, module: &str) {
-    // Ensure module is loaded
-    if !module_is_loaded(&module) {
+    // Check if module is loaded
+    if !is_module_loaded(&module) {
         if idempotent {
             return;
         }
@@ -204,12 +208,11 @@ pub fn unload(idempotent: bool, module: &str) {
 
     println!("Unloading module {} ...", module);
 
-    // Run rmmod (doesn't need to be inside a container)
-    let success = process::Command::new("rmmod")
+    // Call 'rmmod' on the host
+    // We don't need to call it inside a new container,
+    // since we don't need the image after the module is loaded
+    process::Command::new("rmmod")
         .arg(format!("{}", module))
         .status()
-        .unwrap()
-        .success();
-
-    assert!(success, "Error while unloading kernel module");
+        .expect("Error while unloading the kernel module");
 }
