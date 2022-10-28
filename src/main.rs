@@ -20,6 +20,7 @@ use podmod::*;
 use std::collections;
 use std::env;
 use std::fs;
+use std::path;
 use toml;
 
 #[derive(Parser, Debug)]
@@ -166,6 +167,11 @@ fn main() {
     // Ensure program is run as root
     if !unistd::Uid::effective().is_root() {
         panic!("Must be run as root");
+    }
+
+    // Ensure data directory is found
+    if !path::Path::new(&data_dir).is_dir() {
+        panic!("Data directory does not exist")
     }
 
     // Call appropriate functions from library
