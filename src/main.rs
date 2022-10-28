@@ -83,7 +83,8 @@ fn parse_config(path: &str) -> toml::Value {
         .expect(format!("Error while reading configuration file at {}", path).as_str());
 
     // Parse file using the 'toml' crate
-    let config = file.parse::<toml::Value>()
+    let config = file
+        .parse::<toml::Value>()
         .expect(format!("Error while parsing configuration file at {}", path).as_str());
 
     config
@@ -91,7 +92,8 @@ fn parse_config(path: &str) -> toml::Value {
 
 fn get_main_config(config: &toml::Value) -> &str {
     // Fetch TOML values
-    let data_dir = config.get("data_dir")
+    let data_dir = config
+        .get("data_dir")
         .expect("Missing configuration option 'data_dir'")
         .as_str()
         .expect("Configuration option 'data_dir' must have a string value");
@@ -108,24 +110,27 @@ fn get_module_config<'a>(
     collections::HashMap<&'a str, &'a str>,
 ) {
     // Fetch parent TOML tables
-    let config = config.get(&module)
+    let config = config
+        .get(&module)
         .expect(format!("Missing configuration for module {}", module).as_str())
         .as_table()
         .expect(format!("Configuration for module {} must be a table", module).as_str());
 
-    let build_config = config.get("build")
+    let build_config = config
+        .get("build")
         .expect(format!("Missing build configuration for module {}", module).as_str())
         .as_table()
         .expect(format!("Build configuration for module {} must be a table", module).as_str());
 
     // Fetch TOML values
-    let version = config.get("version")
+    let version = config
+        .get("version")
         .expect(format!("No version specified for module {}", module).as_str())
         .as_str()
         .expect(format!("Version identifier for module {} must have a string value", module).as_str());
 
-
-    let kernel_args = config.get("kernel_args")
+    let kernel_args = config
+        .get("kernel_args")
         .expect(format!("No kernel parameters specified for module {}", module).as_str())
         .as_array()
         .expect(format!("Kernel parameters for module {} must be an array", module).as_str());
@@ -135,7 +140,8 @@ fn get_module_config<'a>(
     let mut build_args = collections::HashMap::new();
 
     for (key, value) in build_config {
-        let value = value.as_str()
+        let value = value
+            .as_str()
             .expect(format!("Build parameter for module {} must have a string value", module).as_str());
 
         build_args.insert(key.as_str(), value);
@@ -171,11 +177,7 @@ fn main() {
             let (module_version, kernel_args, ..) = get_module_config(&config, &module);
             load(idempotent, &module, &module_version, &kernel_args)
         }
-        Command::Modules {} => {
-            modules(data_dir)
-        }
-        Command::Unload { idempotent, module } => {
-            unload(idempotent, &module)
-        }
+        Command::Modules {} => modules(data_dir),
+        Command::Unload { idempotent, module } => unload(idempotent, &module),
     };
 }

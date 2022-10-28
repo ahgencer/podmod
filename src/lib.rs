@@ -124,7 +124,8 @@ pub fn build(
     // We already now the target architecture and kernel version
     let mut command = process::Command::new("podman");
 
-    command.args(["build", "-t", &image_name])
+    command
+        .args(["build", "-t", &image_name])
         .args(["--build-arg", format!("ARCH={}", arch).as_str()])
         .args(["--build-arg", format!("KERNEL_VERSION={}", kernel_version).as_str()])
         .args(["--build-arg", format!("MODULE_VERSION={}", module_version).as_str()]);
@@ -134,7 +135,8 @@ pub fn build(
         command.args(["--build-arg", format!("{}={}", key, value).as_str()]);
     }
 
-    command.arg(format!("{}/modules/{}", data_dir, module))
+    command
+        .arg(format!("{}/modules/{}", data_dir, module))
         .status()
         .expect("Error while building the kernel module");
 
