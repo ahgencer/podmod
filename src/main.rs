@@ -112,37 +112,38 @@ fn get_module_config<'a>(
     // Fetch parent TOML tables
     let config = config
         .get(&module)
-        .expect(format!("Missing configuration for module {}", module).as_str())
+        .expect(format!("Missing configuration for {} module", module).as_str())
         .as_table()
-        .expect(format!("Configuration for module {} must be a table", module).as_str());
+        .expect(format!("Configuration for {} module must be a table", module).as_str());
 
     let build_config = config
         .get("build")
-        .expect(format!("Missing build configuration for module {}", module).as_str())
+        .expect(format!("Missing build configuration for {} module", module).as_str())
         .as_table()
-        .expect(format!("Build configuration for module {} must be a table", module).as_str());
+        .expect(format!("Build configuration for {} module must be a table", module).as_str());
 
     // Fetch TOML values
     let version = config
         .get("version")
-        .expect(format!("No version specified for module {}", module).as_str())
+        .expect(format!("No version specified for {} module", module).as_str())
         .as_str()
-        .expect(format!("Version identifier for module {} must have a string value", module).as_str());
+        .expect(format!("Version identifier for {} module must have a string value", module).as_str());
 
     let kernel_args = config
         .get("kernel_args")
-        .expect(format!("No kernel parameters specified for module {}", module).as_str())
+        .expect(format!("No kernel parameters specified for {} module", module).as_str())
         .as_array()
-        .expect(format!("Kernel parameters for module {} must be an array", module).as_str());
+        .expect(format!("Kernel parameters for {} module must be an array", module).as_str());
 
-    let kernel_args: Vec<_> = kernel_args.iter().map(|v| v.as_str().unwrap()).collect();
+    let msg = format!("Kernel parameter for {} module must have a string value", module);
+    let kernel_args: Vec<_> = kernel_args.iter().map(|v| v.as_str().expect(&msg)).collect();
 
     let mut build_args = collections::HashMap::new();
 
     for (key, value) in build_config {
         let value = value
             .as_str()
-            .expect(format!("Build parameter for module {} must have a string value", module).as_str());
+            .expect(format!("Build parameter for {} module must have a string value", module).as_str());
 
         build_args.insert(key.as_str(), value);
     }
