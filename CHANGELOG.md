@@ -1,8 +1,12 @@
 # Changelog
 
-## Unreleased
+## v0.4.0 (2022-10-28)
 
-These are the changes that have not been released yet. The release notes have not yet been written.
+This version marks the completion of the rewrite of the frontend script in Rust.
+
+**FEATURE ENCHANCEMENTS:**
+
+- Refactored codebase.
 
 **REMOVED FEATURES:**
 
