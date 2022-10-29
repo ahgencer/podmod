@@ -8,7 +8,9 @@ These are the changes that have not been released yet. The release notes have no
 
 - Add per-module load script into images.
 
-- Extract build environment setup into separate builder image
+- Extract common parts of Containerfiles into separates images
+    - Setup build environment in `podmod-builder` image
+    - Setup runtime environment in `podmod-runtime` image
 
 - Don't install weak package dependencies to reduce image sizes
 

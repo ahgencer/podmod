@@ -79,6 +79,10 @@ fn get_build_image_identifier(kernel_version: &str) -> String {
     format!("{}-builder:{}", env!("CARGO_PKG_NAME"), kernel_version)
 }
 
+fn get_runtime_image_identifier(kernel_version: &str) -> String {
+    format!("{}-runtime:{}", env!("CARGO_PKG_NAME"), kernel_version)
+}
+
 fn get_module_image_identifier(module: &str, module_version: &str, kernel_version: &str) -> String {
     format!("{}-{}:{}-{}", env!("CARGO_PKG_NAME"), module, module_version, kernel_version)
 }
@@ -112,6 +116,7 @@ pub fn build(
     let arch = get_architecture();
 
     let build_image_name = get_build_image_identifier(&kernel_version);
+    let runtime_image_name = get_runtime_image_identifier(&kernel_version);
     let module_image_name = get_module_image_identifier(&module, &module_version, &kernel_version);
 
     // Check for existing image
@@ -123,7 +128,7 @@ pub fn build(
         panic!("Module {} is already built", module);
     }
 
-    // Check for builder image
+    // Check for existing builder image
     if !image_exists(&build_image_name) {
         println!("Building builder image for kernel version {} ...", kernel_version);
 
@@ -131,9 +136,23 @@ pub fn build(
             .args(["build", "-t", &build_image_name])
             .args(["--build-arg", format!("ARCH={}", arch).as_str()])
             .args(["--build-arg", format!("KERNEL_VERSION={}", kernel_version).as_str()])
-            .arg(format!("{}/builder/", data_dir))
+            .args(["--file", "Builder.containerfile"])
+            .arg(format!("{}/common/", data_dir))
             .status()
             .expect("Error while building the builder image");
+    }
+
+    // Check for existing runtime image
+    if !image_exists(&runtime_image_name) {
+        println!("Building runtime image for kernel version {} ...", kernel_version);
+
+        process::Command::new("podman")
+            .args(["build", "-t", &runtime_image_name])
+            .args(["--build-arg", format!("KERNEL_VERSION={}", kernel_version).as_str()])
+            .args(["--file", "Runtime.containerfile"])
+            .arg(format!("{}/common/", data_dir))
+            .status()
+            .expect("Error while building the runtime image");
     }
 
     println!("Building module {} for kernel version {} ...", module, kernel_version);
