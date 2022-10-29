@@ -75,7 +75,11 @@ fn is_module_supported(data_dir: &str, module: &str) -> bool {
     path::Path::new(&path).is_dir()
 }
 
-fn get_image_identifier(module: &str, module_version: &str, kernel_version: &str) -> String {
+fn get_build_image_identifier(kernel_version: &str) -> String {
+    format!("{}-builder:{}", env!("CARGO_PKG_NAME"), kernel_version)
+}
+
+fn get_module_image_identifier(module: &str, module_version: &str, kernel_version: &str) -> String {
     format!("{}-{}:{}-{}", env!("CARGO_PKG_NAME"), module, module_version, kernel_version)
 }
 
@@ -107,15 +111,29 @@ pub fn build(
     let kernel_version = get_kernel_version();
     let arch = get_architecture();
 
-    let image_name = get_image_identifier(&module, &module_version, &kernel_version);
+    let build_image_name = get_build_image_identifier(&kernel_version);
+    let module_image_name = get_module_image_identifier(&module, &module_version, &kernel_version);
 
     // Check for existing image
-    if image_exists(&image_name) {
+    if image_exists(&module_image_name) {
         if idempotent {
             return;
         }
 
         panic!("Module {} is already built", module);
+    }
+
+    // Check for builder image
+    if !image_exists(&build_image_name) {
+        println!("Building builder image for kernel version {} ...", kernel_version);
+
+        process::Command::new("podman")
+            .args(["build", "-t", &build_image_name])
+            .args(["--build-arg", format!("ARCH={}", arch).as_str()])
+            .args(["--build-arg", format!("KERNEL_VERSION={}", kernel_version).as_str()])
+            .arg(format!("{}/builder/", data_dir))
+            .status()
+            .expect("Error while building the builder image");
     }
 
     println!("Building module {} for kernel version {} ...", module, kernel_version);
@@ -125,7 +143,7 @@ pub fn build(
     let mut command = process::Command::new("podman");
 
     command
-        .args(["build", "-t", &image_name])
+        .args(["build", "-t", &module_image_name])
         .args(["--build-arg", format!("ARCH={}", arch).as_str()])
         .args(["--build-arg", format!("KERNEL_VERSION={}", kernel_version).as_str()])
         .args(["--build-arg", format!("MODULE_VERSION={}", module_version).as_str()]);
@@ -154,7 +172,7 @@ pub fn build(
 pub fn load(idempotent: bool, module: &str, module_version: &str, kernel_args: &Vec<&str>) {
     // podmod's container images are always named predictably
     let kernel_version = get_kernel_version();
-    let image_name = get_image_identifier(&module, &module_version, &kernel_version);
+    let image_name = get_module_image_identifier(&module, &module_version, &kernel_version);
 
     // Ensure module is built
     if !image_exists(&image_name) {

@@ -8,6 +8,10 @@ These are the changes that have not been released yet. The release notes have no
 
 - Add per-module load script into images.
 
+- Extract build environment setup into separate builder image
+
+- Don't install weak package dependencies to reduce image sizes
+
 ## v0.4.0 (2022-10-28)
 
 This version marks the completion of the rewrite of the frontend script in Rust.

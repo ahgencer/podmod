@@ -13,8 +13,10 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 
+ARG KERNEL_VERSION
+
 ## Stage 1: Build kernel module
-FROM registry.fedoraproject.org/fedora:latest AS builder
+FROM podmod-builder:$KERNEL_VERSION AS builder
 
 ARG ARCH
 ARG KERNEL_VERSION
@@ -23,23 +25,6 @@ ARG SHA256
 ARG UPSTREAM
 
 WORKDIR /tmp
-
-# Install build dependencies
-RUN dnf install -y \
-      gc \
-      gcc \
-      glibc-devel \
-      glibc-headers \
-      koji
-
-# Download and install correct kernel packages from koji
-RUN mkdir /tmp/koji && \
-    cd /tmp/koji && \
-    koji download-build --arch=$ARCH kernel-$KERNEL_VERSION && \
-    dnf install -y \
-      ./kernel-core-$KERNEL_VERSION.rpm \
-      ./kernel-devel-$KERNEL_VERSION.rpm \
-      ./kernel-modules-$KERNEL_VERSION.rpm
 
 # Download and extract kernel module from upstream
 RUN curl -LS $UPSTREAM -o v4l2loopback-$MODULE_VERSION.tar.gz && \
@@ -58,15 +43,11 @@ FROM registry.fedoraproject.org/fedora:latest AS staging
 ARG KERNEL_VERSION
 ARG MODULE_VERSION
 
-# Install runtime dependencies
-RUN dnf install -y \
-      v4l-utils
-
 # Copy and install kernel packages from builder stage
-COPY --from=builder /tmp/koji/ /tmp/koji/
+COPY --from=builder /app/koji/ /tmp/koji/
 
 RUN cd /tmp/koji && \
-    dnf install -y \
+    dnf install -y --setopt=install_weak_deps=False \
       ./kernel-core-$KERNEL_VERSION.rpm \
       ./kernel-modules-$KERNEL_VERSION.rpm && \
     rm -rf /tmp/koji
@@ -76,9 +57,12 @@ COPY --from=builder \
   /tmp/v4l2loopback-$MODULE_VERSION/v4l2loopback.ko \
   /usr/lib/modules/$KERNEL_VERSION/extra/v4l2loopback.ko
 
+# Install runtime dependencies
+RUN dnf install -y \
+      v4l-utils
+
 # Copy load script into image
 COPY load /usr/local/sbin/
-
 RUN chmod 0755 /usr/local/sbin/load
 
 # Minimize final image size

@@ -79,11 +79,11 @@ use the "default" feature of the "%{crate}" crate.
 %install
 %cargo_install
 mv %{buildroot}%{_bindir} %{buildroot}%{_sbindir}
-mkdir -p %{buildroot}%{_datadir}/podmod/
+mkdir -p %{buildroot}%{_datadir}
 mkdir -p %{buildroot}%{_mandir}/man8/ %{buildroot}%{_mandir}/man5/
 mkdir -p %{buildroot}%{_sysconfdir}
 mkdir -p %{buildroot}%{_unitdir}
-cp -pr share/modules/ %{buildroot}%{_datadir}/podmod/
+cp -pr share/ %{buildroot}%{_datadir}/podmod/
 install -p -m0644 docs/*.8 %{buildroot}%{_mandir}/man8/
 install -p -m0644 docs/*.5 %{buildroot}%{_mandir}/man5/
 install -p -m0644 extra/podmod.conf.dist %{buildroot}%{_sysconfdir}/podmod.conf
