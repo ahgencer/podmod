@@ -76,6 +76,11 @@ COPY --from=builder \
   /tmp/v4l2loopback-$MODULE_VERSION/v4l2loopback.ko \
   /usr/lib/modules/$KERNEL_VERSION/extra/v4l2loopback.ko
 
+# Copy load script into image
+COPY load /usr/local/sbin/
+
+RUN chmod 0755 /usr/local/sbin/load
+
 # Minimize final image size
 RUN dnf clean all -y
 

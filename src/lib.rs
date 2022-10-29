@@ -172,11 +172,10 @@ pub fn load(idempotent: bool, module: &str, module_version: &str, kernel_args: &
 
     println!("Loading module {} ...", module);
 
-    // Call 'insmod' inside a new container
+    // Call the load script inside a new container
     // Add additional kernel parameters passed to the function
     process::Command::new("podman")
-        .args(["run", "--rm", "--privileged", &image_name])
-        .args(["insmod", format!("/usr/lib/modules/{}/extra/{}.ko", kernel_version, module).as_str()])
+        .args(["run", "--rm", "--privileged", &image_name, "load"])
         .args(kernel_args)
         .status()
         .expect("Error while loading the kernel module");

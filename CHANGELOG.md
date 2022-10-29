@@ -1,10 +1,18 @@
 # Changelog
 
+## Unreleased
+
+These are the changes that have not been released yet. The release notes have not yet been written.
+
+**FEATURE ENHANCEMENTS:**
+
+- Add per-module load script into images.
+
 ## v0.4.0 (2022-10-28)
 
 This version marks the completion of the rewrite of the frontend script in Rust.
 
-**FEATURE ENCHANCEMENTS:**
+**FEATURE ENHANCEMENTS:**
 
 - Refactored codebase.
 
@@ -14,7 +22,7 @@ This version marks the completion of the rewrite of the frontend script in Rust.
 
 ## v0.3.6 (2022-10-27)
 
-**FEATURE ENCHANCEMENTS:**
+**FEATURE ENHANCEMENTS:**
 
 - Re-add configuration file `podmod.conf`.
     - Specify kernel module parameters in configuration file.
@@ -33,7 +41,7 @@ This version marks the completion of the rewrite of the frontend script in Rust.
 
 ## v0.3.5 (2022-10-18)
 
-**FEATURE ENCHANCEMENTS:**
+**FEATURE ENHANCEMENTS:**
 
 - Prune old images after building module.
 
@@ -43,7 +51,7 @@ This version marks the completion of the rewrite of the frontend script in Rust.
 
 ## v0.3.4 (2022-10-18)
 
-**FEATURE ENCHANCEMENTS:**
+**FEATURE ENHANCEMENTS:**
 
 - Add systemd unit service to load modules on boot.
 
