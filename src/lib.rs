@@ -234,7 +234,7 @@ pub fn modules(data_dir: &str) {
     }
 }
 
-pub fn unload(idempotent: bool, module: &str) {
+pub fn unload(idempotent: bool, module: &str, module_version: &str) {
     // Check if module is loaded
     if !is_module_loaded(&module) {
         if idempotent {
@@ -244,13 +244,15 @@ pub fn unload(idempotent: bool, module: &str) {
         panic!("Module {} is not loaded", module);
     }
 
+    // podmod's container images are always named predictably
+    let kernel_version = get_kernel_version();
+    let image_name = get_module_image_identifier(&module, &module_version, &kernel_version);
+
     println!("Unloading module {} ...", module);
 
-    // Call 'rmmod' on the host
-    // We don't need to call it inside a new container,
-    // since we don't need the image after the module is loaded
-    process::Command::new("rmmod")
-        .arg(format!("{}", module))
+    // Call the unload script inside a new container
+    process::Command::new("podman")
+        .args(["run", "--rm", "--privileged", &image_name, "unload"])
         .status()
         .expect("Error while unloading the kernel module");
 }

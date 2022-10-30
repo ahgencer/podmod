@@ -6,7 +6,7 @@ These are the changes that have not been released yet. The release notes have no
 
 **FEATURE ENHANCEMENTS:**
 
-- Add per-module load script into images.
+- Add per-module load and unload scripts into images.
 
 - Extract common parts of Containerfiles into separates images
     - Setup build environment in `podmod-builder` image

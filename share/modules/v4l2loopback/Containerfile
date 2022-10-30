@@ -53,8 +53,8 @@ RUN dnf install -y \
       v4l-utils
 
 # Copy load script into image
-COPY load /usr/local/sbin/
-RUN chmod 0755 /usr/local/sbin/load
+COPY load unload /usr/local/sbin/
+RUN chmod 0755 /usr/local/sbin/*
 
 # Minimize final image size
 RUN dnf clean all -y

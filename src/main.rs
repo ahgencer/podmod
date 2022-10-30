@@ -185,6 +185,9 @@ fn main() {
             load(idempotent, &module, &module_version, &kernel_args)
         }
         Command::Modules {} => modules(data_dir),
-        Command::Unload { idempotent, module } => unload(idempotent, &module),
+        Command::Unload { idempotent, module } => {
+            let (module_version, ..) = get_module_config(&config, &module);
+            unload(idempotent, &module, &module_version)
+        }
     };
 }
