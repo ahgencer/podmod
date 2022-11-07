@@ -13,37 +13,48 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/*
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 use clap::Parser;
 use clap::Subcommand;
 use nix::unistd;
-use podmod::*;
-use std::collections;
+use podmod::config;
 use std::env;
-use std::fs;
 use std::path;
-use toml;
 
 #[derive(Parser, Debug)]
 #[clap(version, about, long_about = None)]
-struct Args {
+pub struct Args {
     /// Path to the configuration file
     #[clap(short, long, default_value = "/etc/podmod.conf")]
-    config: String,
+    pub config: String,
 
-    /// Use CONFIG as configuration
     #[clap(subcommand)]
-    command: Command,
+    pub command: Command,
 }
 
 #[derive(Subcommand, Debug)]
-enum Command {
+pub enum Command {
     /// Build the kernel module
     Build {
         /// Quietly exit if module is already built
         #[clap(short, long)]
         idempotent: bool,
 
-        /// Work on the module MODULE
+        /// The module to work on
         #[clap(short, long)]
         module: String,
 
@@ -58,7 +69,7 @@ enum Command {
         #[clap(short, long)]
         idempotent: bool,
 
-        /// Work on the module MODULE
+        /// The module to work on
         #[clap(short, long)]
         module: String,
     },
@@ -78,91 +89,24 @@ enum Command {
     },
 }
 
-fn parse_config(path: &str) -> toml::Value {
-    // Read file into String
-    let file = fs::read_to_string(path)
-        .expect(format!("Error while reading configuration file at {}", path).as_str());
-
-    // Parse file using the 'toml' crate
-    let config = file
-        .parse::<toml::Value>()
-        .expect(format!("Error while parsing configuration file at {}", path).as_str());
-
-    config
-}
-
-fn get_main_config(config: &toml::Value) -> &str {
-    // Fetch TOML values
-    let data_dir = config
-        .get("data_dir")
-        .expect("Missing configuration option 'data_dir'")
-        .as_str()
-        .expect("Configuration option 'data_dir' must have a string value");
-
-    data_dir
-}
-
-fn get_module_config<'a>(
-    config: &'a toml::Value,
-    module: &'a str,
-) -> (
-    &'a str,
-    Vec<&'a str>,
-    collections::HashMap<&'a str, &'a str>,
-) {
-    // Fetch parent TOML tables
-    let config = config
-        .get(&module)
-        .expect(format!("Missing configuration for {} module", module).as_str())
-        .as_table()
-        .expect(format!("Configuration for {} module must be a table", module).as_str());
-
-    let build_config = config
-        .get("build")
-        .expect(format!("Missing build configuration for {} module", module).as_str())
-        .as_table()
-        .expect(format!("Build configuration for {} module must be a table", module).as_str());
-
-    // Fetch TOML values
-    let version = config
-        .get("version")
-        .expect(format!("No version specified for {} module", module).as_str())
-        .as_str()
-        .expect(format!("Version identifier for {} module must have a string value", module).as_str());
-
-    let kernel_args = config
-        .get("kernel_args")
-        .expect(format!("No kernel parameters specified for {} module", module).as_str())
-        .as_array()
-        .expect(format!("Kernel parameters for {} module must be an array", module).as_str());
-
-    let msg = format!("Kernel parameter for {} module must have a string value", module);
-    let kernel_args: Vec<_> = kernel_args.iter().map(|v| v.as_str().expect(&msg)).collect();
-
-    let mut build_args = collections::HashMap::new();
-
-    for (key, value) in build_config {
-        let value = value
-            .as_str()
-            .expect(format!("Build parameter for {} module must have a string value", module).as_str());
-
-        build_args.insert(key.as_str(), value);
-    }
-
-    (version, kernel_args, build_args)
-}
-
 fn main() {
-    // Parse command line arguments and configuration file
-    let args = Args::parse();
-    let config = parse_config(&args.config);
-
-    let data_dir = get_main_config(&config);
-
     // Ensure running on Linux
     if env::consts::OS != "linux" {
         panic!("Must run on Linux");
     }
+
+    // Parse command line arguments and configuration file
+    let args = Args::parse();
+    let config: config::Config = config::parse(&args.config);
+
+    let module_config = match args.command {
+        Command::Build { ref module, .. } |
+        Command::Load { ref module, .. } |
+        Command::Unload { ref module, .. } => {
+            Some(config::module(&config.tree, &module))
+        }
+        _ => None,
+    };
 
     // Ensure program is run as root
     if !unistd::Uid::effective().is_root() {
@@ -170,24 +114,23 @@ fn main() {
     }
 
     // Ensure data directory is found
-    if !path::Path::new(&data_dir).is_dir() {
+    if !path::Path::new(&config.data_dir).is_dir() {
         panic!("Data directory does not exist")
     }
 
-    // Call appropriate functions from library
+    // Call appropriate function from library
     match args.command {
-        Command::Build { idempotent, module, no_prune } => {
-            let (module_version, .., build_args) = get_module_config(&config, &module);
-            build(data_dir, idempotent, &module, &module_version, no_prune, &build_args)
-        }
-        Command::Load { idempotent, module } => {
-            let (module_version, kernel_args, ..) = get_module_config(&config, &module);
-            load(idempotent, &module, &module_version, &kernel_args)
-        }
-        Command::Modules {} => modules(data_dir),
-        Command::Unload { idempotent, module } => {
-            let (module_version, ..) = get_module_config(&config, &module);
-            unload(idempotent, &module, &module_version)
+        Command::Build { idempotent, no_prune, .. } => {
+            podmod::build(&config, &module_config.unwrap(), idempotent, no_prune)
+        },
+        Command::Load { idempotent, .. } => {
+            podmod::load(&module_config.unwrap(), idempotent)
+        },
+        Command::Modules {} => {
+            podmod::modules(&config)
+        },
+        Command::Unload { idempotent, .. } => {
+            podmod::unload(&module_config.unwrap(), idempotent)
         }
     };
 }

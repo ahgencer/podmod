@@ -8,11 +8,13 @@ These are the changes that have not been released yet. The release notes have no
 
 - Add per-module load and unload scripts into images.
 
-- Extract common parts of Containerfiles into separates images
-    - Setup build environment in `podmod-builder` image
-    - Setup runtime environment in `podmod-runtime` image
+- Extract common parts of Containerfiles into separates images.
+    - Setup build environment in `podmod-builder` image.
+    - Setup runtime environment in `podmod-runtime` image.
 
-- Don't install weak package dependencies to reduce image sizes
+- Don't install weak package dependencies to reduce image sizes.
+
+- Split codebase into multiple smaller files.
 
 ## v0.4.0 (2022-10-28)
 
