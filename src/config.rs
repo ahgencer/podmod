@@ -81,9 +81,10 @@ pub fn module(config: &toml::Value, module: &str) -> ModuleConfig {
 
     let version = String::from(version);
 
+    let kernel_args = toml::value::Value::try_from(Vec::<String>::new()).unwrap();
     let kernel_args = config
         .get("kernel_args")
-        .expect(&format!("No kernel parameters specified for {} module", module))
+        .unwrap_or(&kernel_args)
         .as_array()
         .expect(&format!("Kernel parameters for {} module must be an array", module));
 

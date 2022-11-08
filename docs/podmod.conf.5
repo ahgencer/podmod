@@ -3,7 +3,6 @@
 podmod \- Configuration file for Podmod.
 .SH DESCRIPTION
 This is the configuration file for podmod(1).
-None of the options have any default values and are therefore all required.
 .PP
 The file is formatted using the TOML format.
 Trailing whitespace, comments starting with ‘#’, and blank lines are ignored.
@@ -28,8 +27,9 @@ such as the Containerfile tree.
 The upstream version string of the module.
 .TP
 \fBkernel_args\fR array of strings
-The kernel parameters that will be passed to insmod(8) when loading the module.
-Each string is contains a parameter formatted as "key=value".
+Optional.
+List of additional kernel parameters that will be passed to insmod(8) when loading the module.
+Each string contains a single parameter formatted as "key=value".
 .SH FILES
 /etc/podmod.conf
 .SH AUTHOR

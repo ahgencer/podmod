@@ -16,6 +16,10 @@ These are the changes that have not been released yet. The release notes have no
 
 - Split codebase into multiple smaller files.
 
+**CHANGES:**
+
+- `kernel_args` module configuration option is now optional.
+
 ## v0.4.0 (2022-10-28)
 
 This version marks the completion of the rewrite of the frontend script in Rust.
