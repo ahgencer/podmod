@@ -9,6 +9,7 @@ jobs:
   cargo_publish:
     name: Publish to crates.io
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout sources
         uses: actions/checkout@v2
@@ -20,6 +21,7 @@ jobs:
           toolchain: stable
           override: true
 
+      - name: Publish crate
       - run: cargo publish --token ${CARGO_REGISTRY_TOKEN}
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
@@ -28,7 +30,9 @@ jobs:
     name: Send webhook to start Copr build
     runs-on: ubuntu-latest
     needs: cargo_publish
+
     steps:
+      - name: Send POST request
       - run: curl -X POST ${COPR_WEBHOOK_URL}
         env:
           COPR_WEBHOOK_URL: ${{ secrets.COPR_WEBHOOK_URL }}
