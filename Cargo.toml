@@ -21,7 +21,13 @@ exclude = [
     ".gitignore",
 ]
 
+build = "bin/build.rs"
+
 [dependencies]
 clap = { version = "3.2.20", features = ["derive"] }
 nix = "0.24.2"
 toml = "0.5.9"
+
+[build-dependencies]
+clap = { version = "3.2.20", features = ["derive"] }
+clap_complete = "3.2.4"

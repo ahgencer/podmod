@@ -29,65 +29,12 @@
  */
 
 use clap::Parser;
-use clap::Subcommand;
 use nix::unistd;
 use podmod::config;
 use std::env;
 use std::path;
 
-#[derive(Parser, Debug)]
-#[clap(version, about, long_about = None)]
-pub struct Args {
-    /// Path to the configuration file
-    #[clap(short, long, default_value = "/etc/podmod.conf")]
-    pub config: String,
-
-    #[clap(subcommand)]
-    pub command: Command,
-}
-
-#[derive(Subcommand, Debug)]
-pub enum Command {
-    /// Build the kernel module
-    Build {
-        /// Quietly exit if module is already built
-        #[clap(short, long)]
-        idempotent: bool,
-
-        /// The module to work on
-        #[clap(short, long)]
-        module: String,
-
-        /// Don't prune old images after building
-        #[clap(long)]
-        no_prune: bool,
-    },
-
-    /// Load the kernel module
-    Load {
-        /// Quietly exit if module is already loaded
-        #[clap(short, long)]
-        idempotent: bool,
-
-        /// The module to work on
-        #[clap(short, long)]
-        module: String,
-    },
-
-    /// List supported kernel modules
-    Modules {},
-
-    /// Unload the kernel module
-    Unload {
-        /// Quietly exit if module is not loaded
-        #[clap(short, long)]
-        idempotent: bool,
-
-        /// Work on the module MODULE
-        #[clap(short, long)]
-        module: String,
-    },
-}
+pub mod cli;
 
 fn main() {
     // Ensure running on Linux
@@ -96,13 +43,13 @@ fn main() {
     }
 
     // Parse command line arguments and configuration file
-    let args = Args::parse();
+    let args = cli::CLI::parse();
     let config: config::Config = config::parse(&args.config);
 
     let module_config = match args.command {
-        Command::Build { ref module, .. } |
-        Command::Load { ref module, .. } |
-        Command::Unload { ref module, .. } => {
+        cli::Command::Build { ref module, .. } |
+        cli::Command::Load { ref module, .. } |
+        cli::Command::Unload { ref module, .. } => {
             Some(config::module(&config.tree, &module))
         }
         _ => None,
@@ -120,16 +67,16 @@ fn main() {
 
     // Call appropriate function from library
     match args.command {
-        Command::Build { idempotent, no_prune, .. } => {
+        cli::Command::Build { idempotent, no_prune, .. } => {
             podmod::build(&config, &module_config.unwrap(), idempotent, no_prune)
         },
-        Command::Load { idempotent, .. } => {
+        cli::Command::Load { idempotent, .. } => {
             podmod::load(&module_config.unwrap(), idempotent)
         },
-        Command::Modules {} => {
+        cli::Command::Modules {} => {
             podmod::modules(&config)
         },
-        Command::Unload { idempotent, .. } => {
+        cli::Command::Unload { idempotent, .. } => {
             podmod::unload(&module_config.unwrap(), idempotent)
         }
     };

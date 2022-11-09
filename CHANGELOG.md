@@ -16,6 +16,8 @@ These are the changes that have not been released yet. The release notes have no
 
 - Split codebase into multiple smaller files.
 
+- Generate shell completion files with `clap_complete` crate.
+
 **CHANGES:**
 
 - `kernel_args` module configuration option is now optional.
