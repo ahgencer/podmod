@@ -10,12 +10,13 @@ Summary:        Containerized build system for kernel modules on Fedora
 
 License:        GPL-2.0-or-later
 URL:            https://crates.io/crates/%{crate}
-Source0:        %{name}-%{version}.tar.gz
+Source0:        %{crates_source}
 
 ExclusiveArch:  %{rust_arches}
 
 BuildRequires:  rust-packaging
 BuildRequires:  systemd-rpm-macros
+
 Requires:       podman
 
 %global _description %{expand:

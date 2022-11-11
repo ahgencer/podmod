@@ -34,7 +34,7 @@ a [Toolbx](https://docs.fedoraproject.org/en-US/fedora-silverblue/toolbox/) cont
 
 Then build the package with:
 
-    # tito build -o dist/ [--test] --rpm
+    # tito build -o dist/ --test --rpm
 
 The locally built RPM and SRPM packages will be inside the `dist/` directory.
 

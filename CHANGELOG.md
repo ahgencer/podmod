@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+These are the changes that have not been released yet. The release notes have not yet been written.
+
+**BUG FIXES:**
+
+- Fix Tito not finding package sources when building a stable version locally.
+
 ## v0.4.1 (2022-11-11)
 
 **FEATURE ENHANCEMENTS:**
@@ -25,10 +33,6 @@
 **CHANGES:**
 
 - `kernel_args` module configuration option is now optional.
-
-**BUG FIXES:**
-
-- Fix Tito not finding package sources when building a stable version locally.
 
 ## v0.4.0 (2022-10-28)
 
