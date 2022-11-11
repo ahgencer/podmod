@@ -58,6 +58,27 @@ pub enum Command {
     /// List supported kernel modules
     Modules {},
 
+    /// Run a command inside a new container
+    Run {
+        /// The module to work on
+        #[clap(short, long)]
+        module: String,
+
+        /// The command to execute
+        command: Vec<String>,
+    },
+
+    /// Start a shell session inside a new container
+    Shell {
+        /// The module to work on
+        #[clap(short, long)]
+        module: String,
+
+        /// The shell command to run
+        #[clap(default_value = "/bin/bash")]
+        shell: String,
+    },
+
     /// Unload the kernel module
     Unload {
         /// Quietly exit if module is not loaded

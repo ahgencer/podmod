@@ -20,6 +20,10 @@ These are the changes that have not been released yet. The release notes have no
 
 - Simplify installation instructions on `rpm-ostree` systems.
 
+- Add `run` and `shell` subcommands.
+
+- Specify additional Podman options in configuration file with `container_args`.
+
 **CHANGES:**
 
 - `kernel_args` module configuration option is now optional.

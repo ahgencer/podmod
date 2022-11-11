@@ -11,6 +11,7 @@ data_dir = "/usr/share/podmod"
 
 [v4l2loopback]
 version="0.12.7"
+
 kernel_args = [
     "exclusive_caps=1",
 ]

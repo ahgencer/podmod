@@ -134,15 +134,6 @@ pub fn build(config: &config::Config, module: &config::ModuleConfig, idempotent:
 }
 
 pub fn load(module: &config::ModuleConfig, idempotent: bool) {
-    // podmod's container images are always named predictably
-    let kernel_version = fetch::kernel_version();
-    let image_name = get_module_image_identifier(&module.name, &module.version, &kernel_version);
-
-    // Ensure module is built
-    if !image_exists(&image_name) {
-        panic!("Module {} is not built", module.name);
-    }
-
     // Check if module is already loaded
     if fetch::is_module_loaded(&module.name) {
         if idempotent {
@@ -154,13 +145,12 @@ pub fn load(module: &config::ModuleConfig, idempotent: bool) {
 
     println!("Loading module {} ...", module.name);
 
+    let mut command = vec![String::from("load")];
+    command.extend(module.kernel_args.clone());
+
     // Call the load script inside a new container
     // Add additional kernel parameters passed to the function
-    process::Command::new("podman")
-        .args(["run", "--rm", "--privileged", &image_name, "load"])
-        .args(&module.kernel_args)
-        .status()
-        .expect("Error while loading the kernel module");
+    run(module, &command);
 }
 
 pub fn modules(config: &config::Config) {
@@ -177,6 +167,40 @@ pub fn modules(config: &config::Config) {
         let module = module.to_str().unwrap();
         println!("{}", module);
     }
+}
+
+pub fn run(module: &config::ModuleConfig, command: &Vec<String>) {
+    // podmod's container images are always named predictably
+    let kernel_version = fetch::kernel_version();
+    let image_name = get_module_image_identifier(&module.name, &module.version, &kernel_version);
+
+    // Ensure module is built
+    if !image_exists(&image_name) {
+        panic!("Module {} is not built", module.name);
+    }
+
+    println!("Executing command {:?}, in module {} ...", command, module.name);
+
+    // Run the command inside a new container
+    // Add additional Podman arguments from module configuration to the function
+    process::Command::new("podman")
+        .args(["run", "--rm", "--privileged"])
+        .args(&module.container_args)
+        .arg(&image_name)
+        .args(command)
+        .status()
+        .expect("Error while loading the kernel module");
+}
+
+pub fn shell(module: &config::ModuleConfig, shell: &str) {
+    let mut module = module.clone();
+    module.container_args.extend(vec![String::from("-it")]);
+
+    println!("Starting shell session in module {} ...", module.name);
+
+    // Call the load script inside a new container
+    // Add additional kernel parameters passed to the function
+    run(&module, &vec![String::from(shell)]);
 }
 
 pub fn unload(module: &config::ModuleConfig, idempotent: bool) {

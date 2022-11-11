@@ -49,6 +49,8 @@ fn main() {
     let module_config = match args.command {
         cli::Command::Build { ref module, .. } |
         cli::Command::Load { ref module, .. } |
+        cli::Command::Run { ref module, .. } |
+        cli::Command::Shell { ref module, .. } |
         cli::Command::Unload { ref module, .. } => {
             Some(config::module(&config.tree, &module))
         }
@@ -76,6 +78,12 @@ fn main() {
         cli::Command::Modules {} => {
             podmod::modules(&config)
         },
+        cli::Command::Run { command, .. } => {
+            podmod::run(&module_config.unwrap(), &command);
+        },
+        cli::Command::Shell { shell, .. } => {
+            podmod::shell(&module_config.unwrap(), &shell);
+        }
         cli::Command::Unload { idempotent, .. } => {
             podmod::unload(&module_config.unwrap(), idempotent)
         }

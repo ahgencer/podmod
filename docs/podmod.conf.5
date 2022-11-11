@@ -26,6 +26,11 @@ such as the Containerfile tree.
 \fBversion\fR string
 The upstream version string of the module.
 .TP
+\fBcontainer_args\fR array of strings
+Optional.
+List of additional command line arguments that will be passed to podman-run(1) when starting a new container.
+Each string contains a single argument (i.e., without spaces).
+.TP
 \fBkernel_args\fR array of strings
 Optional.
 List of additional kernel parameters that will be passed to insmod(8) when loading the module.

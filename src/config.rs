@@ -17,16 +17,17 @@ use toml;
 use std::collections;
 use std::fs;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Config {
     pub data_dir: String,
     pub tree: toml::Value,
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct ModuleConfig {
     pub name: String,
     pub version: String,
+    pub container_args: Vec<String>,
     pub kernel_args: Vec<String>,
     pub build_args: collections::HashMap<String, String>,
 }
@@ -81,6 +82,20 @@ pub fn module(config: &toml::Value, module: &str) -> ModuleConfig {
 
     let version = String::from(version);
 
+    let container_args = toml::value::Value::try_from(Vec::<String>::new()).unwrap();
+    let container_args = config
+        .get("container_args")
+        .unwrap_or(&container_args)
+        .as_array()
+        .expect(&format!("Container arguments for {} module must be an array", module));
+
+    let msg = format!("Container argument for {} module must have a string value", module);
+    let container_args: Vec<_> = container_args
+        .iter()
+        .map(|v| v.as_str().expect(&msg))
+        .map(|v| String::from(v))
+        .collect();
+
     let kernel_args = toml::value::Value::try_from(Vec::<String>::new()).unwrap();
     let kernel_args = config
         .get("kernel_args")
@@ -111,6 +126,7 @@ pub fn module(config: &toml::Value, module: &str) -> ModuleConfig {
     ModuleConfig {
         name,
         version,
+        container_args,
         kernel_args,
         build_args,
     }
