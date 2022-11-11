@@ -11,10 +11,7 @@ On `dnf` based editions (Workstation, Server, etc.), you can install it the usua
 On `rpm-ostree` based editions (Silverblue / Kinoite, CoreOS, etc.), you first need to add the `.repo` file
 to `/etc/yum.repos.d/`:
 
-    $ VERSION_ID=<VERSION>
-    $ wget -P /etc/yum.repos.d/ "https://copr.fedorainfracloud.org/coprs/ahgencer/podmod/repo/fedora-$VERSION_ID/ahgencer-podmod-fedora-$VERSION_ID.repo"
-
-Where `VERSION` is your Fedora version, as defined in `/etc/os-release` (eg. `36` or `rawhide`).
+    $ wget -P /etc/yum.repos.d/ "https://copr.fedorainfracloud.org/coprs/ahgencer/podmod/repo/fedora-$(rpm -E %fedora)/ahgencer-podmod-fedora-$(rpm -E %fedora).repo"
 
 You can then layer the package on top of your system image:
 

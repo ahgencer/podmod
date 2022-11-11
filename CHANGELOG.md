@@ -18,6 +18,8 @@ These are the changes that have not been released yet. The release notes have no
 
 - Generate shell completion files with `clap_complete` crate.
 
+- Simplify installation instructions on `rpm-ostree` systems.
+
 **CHANGES:**
 
 - `kernel_args` module configuration option is now optional.
