@@ -28,6 +28,10 @@ These are the changes that have not been released yet. The release notes have no
 
 - `kernel_args` module configuration option is now optional.
 
+**BUG FIXES:**
+
+- Fix Tito not finding package sources when building a stable version locally.
+
 ## v0.4.0 (2022-10-28)
 
 This version marks the completion of the rewrite of the frontend script in Rust.
