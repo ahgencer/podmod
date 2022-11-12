@@ -52,7 +52,7 @@ COPY --from=builder \
 RUN dnf install -y \
       v4l-utils
 
-# Copy load script into image
+# Copy load and unload scripts into image
 COPY load unload /usr/local/sbin/
 RUN chmod 0755 /usr/local/sbin/*
 
