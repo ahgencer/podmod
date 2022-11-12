@@ -19,3 +19,14 @@ kernel_args = [
 [v4l2loopback.build]
 SHA256="e0782b8abe8f2235e2734f725dc1533a0729e674c4b7834921ade43b9f04939b"
 UPSTREAM="https://github.com/umlaeute/v4l2loopback/archive/refs/tags/v0.12.7.tar.gz"
+
+[zfs]
+version="2.1.6"
+
+container_args = [
+    # "--mount=type=bind,src=/dev/zfs,dst=/dev/zfs"
+]
+
+[zfs.build]
+SHA256="15339014f8d2131348eb937bf8893849806b6d2645ea607a18c7f117749dbd7a"
+UPSTREAM="https://github.com/openzfs/zfs/releases/download/zfs-2.1.6/zfs-2.1.6.tar.gz"

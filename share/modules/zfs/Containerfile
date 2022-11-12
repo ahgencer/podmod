@@ -1,0 +1,90 @@
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+#
+
+ARG KERNEL_VERSION
+
+## Stage 1: Build kernel module
+FROM podmod-builder:$KERNEL_VERSION AS builder
+
+ARG ARCH
+ARG KERNEL_VERSION
+ARG MODULE_VERSION
+ARG SHA256
+ARG UPSTREAM
+
+WORKDIR /tmp
+
+# Install additional build dependencies
+RUN dnf install -y \
+      elfutils-libelf-devel \
+      libaio-devel \
+      libattr-devel \
+      libblkid-devel \
+      libffi-devel \
+      libtirpc-devel \
+      libudev-devel \
+      libuuid-devel \
+      openssl-devel \
+      python-cffi \
+      python-setuptools \
+      python2-devel \
+      python3-devel \
+      python3-packaging \
+      zlib-devel
+
+# Download and extract kernel module from upstream
+RUN curl -LS $UPSTREAM -o zfs-$MODULE_VERSION.tar.gz && \
+    echo "$SHA256 zfs-$MODULE_VERSION.tar.gz" | sha256sum -c && \
+    tar xzf zfs-$MODULE_VERSION.tar.gz && \
+    rm zfs-$MODULE_VERSION.tar.gz
+
+# Build kernel module packages
+RUN cd /tmp/zfs-$MODULE_VERSION && \
+    ./configure && \
+    make -j1 \
+      rpm-utils \
+      rpm-kmod && \
+    rm \
+      *.src.rpm \
+      *-devel-*.rpm
+
+## Stage 2: Stage and prepare files for the final image
+FROM podmod-runtime:$KERNEL_VERSION AS staging
+
+ARG KERNEL_VERSION
+ARG MODULE_VERSION
+
+# Copy kernel module packages from builder stage
+COPY --from=builder \
+  /tmp/zfs-$MODULE_VERSION/*.rpm \
+  /tmp/zfs-$MODULE_VERSION/
+
+# Install runtime dependencies
+RUN dnf install -y /tmp/zfs-$MODULE_VERSION/*.rpm && \
+    rm -r /tmp/zfs-$MODULE_VERSION
+
+# Copy load and unload scripts into image
+COPY load unload /usr/local/sbin/
+RUN chmod 0755 /usr/local/sbin/*
+
+# Minimize final image size
+RUN dnf clean all -y
+
+## Stage 3: Squash generated image layers
+FROM scratch
+COPY --from=staging / /
+
+# Set default command for container image
+CMD /usr/sbin/zpool

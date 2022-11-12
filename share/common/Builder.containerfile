@@ -29,7 +29,9 @@ RUN dnf install -y \
       glibc-devel \
       glibc-headers \
       koji \
+      libtool \
       make \
+      ncompress \
       rpm-build
 
 # Download and install correct kernel packages from koji
