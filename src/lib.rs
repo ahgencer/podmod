@@ -28,11 +28,11 @@ fn is_module_supported(data_dir: &str, module: &str) -> bool {
 }
 
 fn get_build_image_identifier(kernel_version: &str) -> String {
-    format!("{}-builder:{}", env!("CARGO_PKG_NAME"), kernel_version)
+    format!("{}-builder:{}-{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"), kernel_version)
 }
 
 fn get_runtime_image_identifier(kernel_version: &str) -> String {
-    format!("{}-runtime:{}", env!("CARGO_PKG_NAME"), kernel_version)
+    format!("{}-runtime:{}-{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"), kernel_version)
 }
 
 fn get_module_image_identifier(module: &str, module_version: &str, kernel_version: &str) -> String {
@@ -59,6 +59,7 @@ pub fn build(config: &config::Config, module: &config::ModuleConfig, idempotent:
     // compiling the kernel module
     let kernel_version = fetch::kernel_version();
     let arch = fetch::architecture();
+    let podmod_version = env!("CARGO_PKG_VERSION");
 
     let build_image_name = get_build_image_identifier(&kernel_version);
     let runtime_image_name = get_runtime_image_identifier(&kernel_version);
@@ -94,6 +95,7 @@ pub fn build(config: &config::Config, module: &config::ModuleConfig, idempotent:
         process::Command::new("podman")
             .args(["build", "-t", &runtime_image_name])
             .args(["--build-arg", &format!("KERNEL_VERSION={}", kernel_version)])
+            .args(["--build-arg", &format!("PODMOD_VERSION={}", podmod_version)])
             .args(["--file", "Runtime.containerfile"])
             .arg(format!("{}/common/", config.data_dir))
             .status()
@@ -110,7 +112,8 @@ pub fn build(config: &config::Config, module: &config::ModuleConfig, idempotent:
         .args(["build", "-t", &module_image_name])
         .args(["--build-arg", &format!("ARCH={}", arch)])
         .args(["--build-arg", &format!("KERNEL_VERSION={}", kernel_version)])
-        .args(["--build-arg", &format!("MODULE_VERSION={}", module.version)]);
+        .args(["--build-arg", &format!("MODULE_VERSION={}", module.version)])
+        .args(["--build-arg", &format!("PODMOD_VERSION={}", podmod_version)]);
 
     // Add additional build parameter passed to the function
     for (key, value) in &module.build_args {

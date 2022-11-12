@@ -8,6 +8,8 @@ These are the changes that have not been released yet. The release notes have no
 
 - Add support for OpenZFS.
 
+- Specify Podmod version in build and runtime image tags.
+
 ## v0.4.2 (2022-11-11)
 
 **BUG FIXES:**

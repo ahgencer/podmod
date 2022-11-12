@@ -14,13 +14,15 @@
 #
 
 ARG KERNEL_VERSION
+ARG PODMOD_VERSION
 
 ## Stage 1: Build kernel module
-FROM podmod-builder:$KERNEL_VERSION AS builder
+FROM podmod-builder:$PODMOD_VERSION-$KERNEL_VERSION AS builder
 
 ARG ARCH
 ARG KERNEL_VERSION
 ARG MODULE_VERSION
+ARG PODMOD_VERSION
 ARG SHA256
 ARG UPSTREAM
 
@@ -38,7 +40,7 @@ RUN cd v4l2loopback-$MODULE_VERSION && \
     make install
 
 ## Stage 2: Stage and prepare files for the final image
-FROM podmod-runtime:$KERNEL_VERSION AS staging
+FROM podmod-runtime:$PODMOD_VERSION-$KERNEL_VERSION AS staging
 
 ARG KERNEL_VERSION
 ARG MODULE_VERSION

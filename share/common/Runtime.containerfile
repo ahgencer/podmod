@@ -17,9 +17,10 @@
 FROM registry.fedoraproject.org/fedora:latest AS staging
 
 ARG KERNEL_VERSION
+ARG PODMOD_VERSION
 
 # Copy and install kernel packages from builder stage
-COPY --from=podmod-builder:$KERNEL_VERSION /app/koji/ /tmp/koji/
+COPY --from=podmod-builder:$PODMOD_VERSION-$KERNEL_VERSION /app/koji/ /tmp/koji/
 
 RUN cd /tmp/koji && \
     dnf install -y --setopt=install_weak_deps=False \
