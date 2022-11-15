@@ -22,7 +22,7 @@ use std::io;
 include!("../src/cli.rs");
 
 fn main() -> Result<(), io::Error> {
-    let out_dir = env::var("OUT_DIR").unwrap();
+    let out_dir = format!("{}/../../../", env::var("OUT_DIR").unwrap());
     let bin_name = env::var("CARGO_PKG_NAME").unwrap();
 
     let mut cmd = CLI::command();

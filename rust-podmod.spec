@@ -2,6 +2,7 @@
 %global debug_package %{nil}
 
 %global crate podmod
+%global cargo_out_dir target/release/
 
 Name:           rust-%{crate}
 Version:        0.4.2
@@ -36,6 +37,9 @@ Summary:        %{summary}
 %doc CHANGELOG.md
 %{_sbindir}/podmod
 %{_datadir}/podmod/
+%{_datadir}/bash-completion/completions/%{crate}
+%{_datadir}/zsh/site-functions/_%{crate}
+%{_datadir}/fish/vendor_completions.d/%{crate}.fish
 %{_mandir}/
 %{_sysconfdir}/podmod.conf
 %{_unitdir}/podmod@.service
@@ -78,10 +82,16 @@ use the "default" feature of the "%{crate}" crate.
 %cargo_install
 mv %{buildroot}%{_bindir} %{buildroot}%{_sbindir}
 mkdir -p %{buildroot}%{_datadir}
+mkdir -p %{buildroot}%{_datadir}/bash-completion/completions/
+mkdir -p %{buildroot}%{_datadir}/zsh/site-functions/
+mkdir -p %{buildroot}%{_datadir}/fish/vendor_completions.d/
 mkdir -p %{buildroot}%{_mandir}/man8/ %{buildroot}%{_mandir}/man5/
 mkdir -p %{buildroot}%{_sysconfdir}
 mkdir -p %{buildroot}%{_unitdir}
 cp -pr share/ %{buildroot}%{_datadir}/podmod/
+install -p -m0644 %{cargo_out_dir}/podmod.bash %{buildroot}%{_datadir}/bash-completion/completions/podmod
+install -p -m0644 %{cargo_out_dir}/_podmod %{buildroot}%{_datadir}/zsh/site-functions/_podmod
+install -p -m0644 %{cargo_out_dir}/podmod.fish %{buildroot}%{_datadir}/fish/vendor_completions.d/podmod.fish
 install -p -m0644 docs/*.8 %{buildroot}%{_mandir}/man8/
 install -p -m0644 docs/*.5 %{buildroot}%{_mandir}/man5/
 install -p -m0644 extra/podmod.conf.dist %{buildroot}%{_sysconfdir}/podmod.conf
@@ -93,6 +103,9 @@ install -p -m0644 extra/podmod@.service %{buildroot}%{_unitdir}
 %endif
 
 %changelog
+* Tue Nov 15 2022 Alpin H. Gencer <ah@gencer.us> 0.4.3-1
+- Add shell completion files to package
+
 * Thu Oct 27 2022 Alpin H. Gencer <ah@gencer.us> 0.3.6-1
 - Configuration file re-introduced in version 0.3.6
 

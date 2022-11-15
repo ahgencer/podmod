@@ -10,6 +10,8 @@ These are the changes that have not been released yet. The release notes have no
 
 - Specify Podmod version in build and runtime image tags.
 
+- Package shell completion files in RPM package.
+
 ## v0.4.2 (2022-11-11)
 
 **BUG FIXES:**
