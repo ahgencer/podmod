@@ -1,12 +1,10 @@
 # Changelog
 
-## Unreleased
-
-These are the changes that have not been released yet. The release notes have not yet been written.
+## v0.4.3 (2022-11-15)
 
 **FEATURE ENCHANCEMENTS:**
 
-- Add support for OpenZFS.
+- Add alpha support for OpenZFS.
 
 - Specify Podmod version in build and runtime image tags.
 
