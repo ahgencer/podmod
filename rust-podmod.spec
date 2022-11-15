@@ -5,7 +5,7 @@
 %global cargo_out_dir target/release/
 
 Name:           rust-%{crate}
-Version:        0.4.2
+Version:        0.4.3
 Release:        1%{?dist}
 Summary:        Containerized build system for kernel modules on Fedora
 
