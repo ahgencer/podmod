@@ -10,6 +10,10 @@
 
 - Package shell completion files in RPM package.
 
+**CHANGES:**
+
+- Rename `.repo` file in `/etc/yum.repos.d/` to be more predictable.
+
 ## v0.4.2 (2022-11-11)
 
 **BUG FIXES:**
