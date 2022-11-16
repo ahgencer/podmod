@@ -48,7 +48,7 @@ version, and must be rebuilt with every update.
 
 ### Will this work on other editions of Fedora?
 
-This has only been tested on Silverblue / Kinoite 36, but **will theoretically work** on other editions as well,
+This has only been tested on Silverblue / Kinoite (36 to 37), but **will theoretically work** on other editions as well,
 including Workstation, Server, and CoreOS. Think of it as an alternative to [dkms(8)](https://manpages.org/dkms/8), for
 cases where the module in question is either not packages for Fedora yet, or when the root filesystem is not writable.
 
