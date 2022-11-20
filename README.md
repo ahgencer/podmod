@@ -72,7 +72,8 @@ You are welcome to adapt *podmod* to use different Containerfiles targeting othe
 
 ### Installation
 
-Installation instructions, as well as instructions for building *podmod* from source, can be found [here](INSTALL.md).
+Installation instructions, as well as instructions for building *podmod* from source, can be
+found [here](docs/INSTALL.md).
 
 ### Basic Usage
 
