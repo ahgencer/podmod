@@ -17,7 +17,9 @@
     <a href="https://github.com/ahgencer/podmod#license">
         <img alt="License" src="https://img.shields.io/github/license/ahgencer/podmod?label=License">
     </a>
-    <img alt="Community Built" src="https://img.shields.io/badge/Made%20with-%E2%9D%A4-red">
+    <a href="https://github.com/ahgencer/podmod#contributing">
+        <img alt="Community Built" src="https://img.shields.io/badge/Made%20with-%E2%9D%A4-red">
+    </a>
 </p>
 
 *podmod provides a containerized method for building kernel modules on Fedora, mainly targeting immutable operating
@@ -66,7 +68,8 @@ cases where the module in question is either not packages for Fedora yet, or whe
 incompatible with other distributions. This restriction also excludes distributions that are downstream from Fedora,
 such as [CentOS](https://centos.org/) and [RHEL](https://redhat.com/en/technologies/linux-platforms/enterprise-linux).
 
-You are welcome to adapt *podmod* to use different Containerfiles targeting other distributions, though!
+You are, of course, welcome to adapt *podmod* to use different Containerfiles targeting other distributions. If you do,
+please consider [upstreaming your changes](#contributing) so that everyone can benefit from them!
 
 ## Getting started
 
@@ -99,6 +102,13 @@ Afterwards, you can load it with:
 
 > **Note:** The module must have already been built manually on the system using `podmod build`. Otherwise, the unit
 > will fail.
+
+## Contributing
+
+Found a bug or a missing feature? You can report it at the [issue tracker](https://github.com/ahgencer/podmod/issues).
+
+Please keep in mind that *podmod* is still in the early alpha stages, and large changes are often made without warning.
+It is not meant for public use yet. The source code is made available mostly only as a preview.
 
 ## License
 

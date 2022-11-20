@@ -11,6 +11,8 @@ These are the changes that have not been released yet. The release notes have no
 - Check for Secure Boot state when loading kernel modules.
     - Add note on Secure Boot in installation instructions.
 
+- Add a placeholder contribution section to `README.md`.
+
 **BUG FIXES:**
 
 - Enable required bind mount for running `zfs` commands.
