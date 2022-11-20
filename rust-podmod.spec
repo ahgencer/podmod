@@ -34,7 +34,6 @@ Summary:        %{summary}
 %files       -n %{crate}
 %license COPYING
 %doc README.md
-%doc CHANGELOG.md
 %{_sbindir}/podmod
 %{_datadir}/podmod/
 %{_datadir}/bash-completion/completions/%{crate}
@@ -103,6 +102,9 @@ install -p -m0644 extra/podmod@.service %{buildroot}%{_unitdir}
 %endif
 
 %changelog
+* Sun Nov 20 2022 Alpin H. Gencer <ah@gencer.us> 0.4.4-1
+- Remove CHANGELOG from package
+
 * Tue Nov 15 2022 Alpin H. Gencer <ah@gencer.us> 0.4.3-1
 - Add shell completion files to package
 

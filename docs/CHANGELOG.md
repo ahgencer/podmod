@@ -12,7 +12,11 @@ These are the changes that have not been released yet. The release notes have no
 
 - Rename `.repo` file in `/etc/yum.repos.d/` to be more predictable.
 
-- Move `INSTALL.md` into `docs/` directory.
+- Move `INSTALL.md` and `CHANGELOG.md` into `docs/` directory.
+
+**REMOVED FEATURES:**
+
+- Remove `CHANGELOG.md` from RPM package.
 
 ## v0.4.3 (2022-11-15)
 

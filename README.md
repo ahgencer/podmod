@@ -75,6 +75,8 @@ You are welcome to adapt *podmod* to use different Containerfiles targeting othe
 Installation instructions, as well as instructions for building *podmod* from source, can be
 found [here](docs/INSTALL.md).
 
+The latest additions to *podmod* are outlined in the changelog found [here](docs/CHANGELOG.md).
+
 ### Basic Usage
 
 To get help on using *podmod*, run:
