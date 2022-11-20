@@ -11,11 +11,17 @@ These are the changes that have not been released yet. The release notes have no
 - Check for Secure Boot state when loading kernel modules.
     - Add note on Secure Boot in installation instructions.
 
+**BUG FIXES:**
+
+- Enable required bind mount for running `zfs` commands.
+
 **CHANGES:**
 
 - Rename `.repo` file in `/etc/yum.repos.d/` to be more predictable.
 
 - Move `INSTALL.md` and `CHANGELOG.md` into `docs/` directory.
+
+- Don't pass container arguments to podman-run(1) when loading a module.
 
 **REMOVED FEATURES:**
 

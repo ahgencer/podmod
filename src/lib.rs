@@ -153,12 +153,17 @@ pub fn load(module: &config::ModuleConfig, idempotent: bool) {
 
     println!("Loading module {} ...", module.name);
 
+    // Don't pass container_args when loading the module
+    // Missing bind mount targets, etc. might not exist yet
+    let mut module = module.clone();
+    module.container_args = Vec::new();
+
     let mut command = vec![String::from("load")];
     command.extend(module.kernel_args.clone());
 
     // Call the load script inside a new container
     // Add additional kernel parameters passed to the function
-    run(module, &command);
+    run(&module, &command);
 }
 
 pub fn modules(config: &config::Config) {

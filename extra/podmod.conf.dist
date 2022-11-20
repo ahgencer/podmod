@@ -24,7 +24,7 @@ UPSTREAM="https://github.com/umlaeute/v4l2loopback/archive/refs/tags/v0.12.7.tar
 version="2.1.6"
 
 container_args = [
-    # "--mount=type=bind,src=/dev/zfs,dst=/dev/zfs"
+    "--mount=type=bind,src=/dev/zfs,dst=/dev/zfs"
 ]
 
 [zfs.build]
