@@ -10,6 +10,8 @@
 
 - Package shell completion files in RPM package.
 
+- Integrate links into badges in `README.md`.
+
 **CHANGES:**
 
 - Rename `.repo` file in `/etc/yum.repos.d/` to be more predictable.

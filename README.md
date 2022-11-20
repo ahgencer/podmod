@@ -1,16 +1,24 @@
 <h1 align="center">Podmod</h1>
 
 <p align="center">
-    <img alt="crates.io Downloads" src="https://img.shields.io/crates/d/podmod?label=crates.io%20Downloads">
-    <img alt="GitHub Stars" src="https://img.shields.io/github/stars/ahgencer/podmod?label=GitHub%20Stars">
-    <img alt="Issues" src="https://img.shields.io/github/issues/ahgencer/podmod/open?label=Issues">
-    <img alt="License" src="https://img.shields.io/github/license/ahgencer/podmod?label=License">
+    <a href="https://copr.fedorainfracloud.org/coprs/ahgencer/podmod/">
+        <img alt="Copr" src="https://img.shields.io/badge/Copr-ahgencer%2Fpodmod-51a2da">
+    </a>
+    <a href="https://crates.io/crates/podmod">
+        <img alt="crates.io Downloads" src="https://img.shields.io/crates/d/podmod?label=crates.io%20Downloads">
+    </a>
+    <a href="https://github.com/ahgencer/podmod">
+        <img alt="GitHub Stars" src="https://img.shields.io/github/stars/ahgencer/podmod?label=GitHub%20Stars">
+    </a>
+    <br>
+    <a href="https://github.com/ahgencer/podmod/issues">
+        <img alt="Issues" src="https://img.shields.io/github/issues/ahgencer/podmod/open?label=Issues">
+    </a>
+    <a href="https://github.com/ahgencer/podmod#license">
+        <img alt="License" src="https://img.shields.io/github/license/ahgencer/podmod?label=License">
+    </a>
+    <img alt="Community Built" src="https://img.shields.io/badge/Made%20with-%E2%9D%A4-red">
 </p>
-
-- GitHub: https://github.com/ahgencer/podmod
-- Copr: https://copr.fedorainfracloud.org/coprs/ahgencer/podmod/
-- crates.io: https://crates.io/crates/podmod
-- Issues: https://github.com/ahgencer/podmod/issues
 
 *podmod provides a containerized method for building kernel modules on Fedora, mainly targeting immutable operating
 systems such as Silverblue / Kinoite and CoreOS.*
