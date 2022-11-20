@@ -146,6 +146,11 @@ pub fn load(module: &config::ModuleConfig, idempotent: bool) {
         panic!("Module {} is already loaded", module.name);
     }
 
+    // Check if Secure Boot is enabled
+    if fetch::is_secure_boot_enabled() {
+        panic!("Cannot load unsigned kernel modules if Secure Boot is enabled");
+    }
+
     println!("Loading module {} ...", module.name);
 
     let mut command = vec![String::from("load")];

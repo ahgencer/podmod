@@ -65,3 +65,22 @@ pub fn is_module_loaded(module: &str) -> bool {
     // 'grep' succeeds only if string is found
     grep.wait().unwrap().success()
 }
+
+pub fn is_secure_boot_enabled() -> bool {
+    // Call 'mokutil --sb-state | grep enabled' to check for Secure Boot state
+    let mokutil = process::Command::new("mokutil")
+        .arg("--sb-state")
+        .stdout(process::Stdio::piped())
+        .spawn()
+        .expect("Error while fetching Secure Boot state");
+
+    let mut grep = process::Command::new("grep")
+        .arg("enabled")
+        .stdin(process::Stdio::from(mokutil.stdout.unwrap()))
+        .stdout(process::Stdio::null())
+        .spawn()
+        .expect("Error while determining Secure Boot state");
+
+    // 'grep' succeeds only if string is found
+    grep.wait().unwrap().success()
+}

@@ -19,6 +19,10 @@ You can then layer the package on top of your system image:
 
 > **Note:** *podmod* will not work when it is installed inside a container, as the Podman commands will fail.
 
+> **Note:** Regardless of how *podmod* is installed, [Secure Boot](https://fedoraproject.org/wiki/Secureboot) does not
+> allow loading unsigned kernel modules. As *podmod* does not support signing as part of the build process, it must be
+> disabled in the [UEFI](https://en.wikipedia.org/wiki/UEFI) firmware settings.
+
 ## Building from source
 
 *podmod* is built as an RPM package using [Tito](https://github.com/rpm-software-management/tito). To build the package

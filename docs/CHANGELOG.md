@@ -8,6 +8,9 @@ These are the changes that have not been released yet. The release notes have no
 
 - Integrate links into badges in `README.md`.
 
+- Check for Secure Boot state when loading kernel modules.
+    - Add note on Secure Boot in installation instructions.
+
 **CHANGES:**
 
 - Rename `.repo` file in `/etc/yum.repos.d/` to be more predictable.

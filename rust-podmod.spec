@@ -18,6 +18,7 @@ ExclusiveArch:  %{rust_arches}
 BuildRequires:  rust-packaging
 BuildRequires:  systemd-rpm-macros
 
+Requires:       mokutil
 Requires:       podman
 
 %global _description %{expand:
@@ -104,6 +105,7 @@ install -p -m0644 extra/podmod@.service %{buildroot}%{_unitdir}
 %changelog
 * Sun Nov 20 2022 Alpin H. Gencer <ah@gencer.us> 0.4.4-1
 - Remove CHANGELOG from package
+- Add mokutil dependency
 
 * Tue Nov 15 2022 Alpin H. Gencer <ah@gencer.us> 0.4.3-1
 - Add shell completion files to package
