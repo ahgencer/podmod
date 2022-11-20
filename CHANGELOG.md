@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+These are the changes that have not been released yet. The release notes have not yet been written.
+
+**FEATURE ENCHANCEMENTS:**
+
+- Integrate links into badges in `README.md`.
+
+**CHANGES:**
+
+- Rename `.repo` file in `/etc/yum.repos.d/` to be more predictable.
+
+- Move `INSTALL.md` into `docs/` directory.
+
 ## v0.4.3 (2022-11-15)
 
 **FEATURE ENCHANCEMENTS:**
@@ -9,14 +23,6 @@
 - Specify Podmod version in build and runtime image tags.
 
 - Package shell completion files in RPM package.
-
-- Integrate links into badges in `README.md`.
-
-**CHANGES:**
-
-- Rename `.repo` file in `/etc/yum.repos.d/` to be more predictable.
-
-- Move `INSTALL.md` into `docs/` directory.
 
 ## v0.4.2 (2022-11-11)
 
